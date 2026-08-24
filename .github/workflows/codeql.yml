@@ -18,21 +18,31 @@ jobs:
     outputs:
       skip_analysis: ${{ steps.decision.outputs.skip_analysis }}
     steps:
-      - id: dependabot
-        if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
-        with:
-          github-token: ${{ github.token }}
       - id: decision
         env:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.head_ref }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          is_clearly_non_major_dependabot_update() {
+            case "$PR_AUTHOR" in *dependabot*) ;; *) return 1 ;; esac
+            local matched=false from_major to_major
+            while IFS= read -r line; do
+              if [[ "$line" =~ from[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2}[[:space:]]+to[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2} ]]; then
+                matched=true
+                from_major="${BASH_REMATCH[1]}"
+                to_major="${BASH_REMATCH[3]}"
+                [ "$from_major" = "$to_major" ] || return 1
+              fi
+            done <<< "$PR_TITLE"$'\n'"$PR_BODY"
+            [ "$matched" = true ]
+          }
+
           if [ "$EVENT_NAME" = "pull_request" ] && [[ "$HEAD_REF" == release-please--* ]]; then
             echo "skip_analysis=true" >> "$GITHUB_OUTPUT"
-          elif [ "$PR_AUTHOR" = "dependabot[bot]" ] && [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
+          elif is_clearly_non_major_dependabot_update; then
             echo "skip_analysis=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip_analysis=false" >> "$GITHUB_OUTPUT"

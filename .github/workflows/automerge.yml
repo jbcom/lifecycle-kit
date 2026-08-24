@@ -21,16 +21,30 @@ jobs:
         run: gh pr merge --auto --merge "$PR_URL"
 
   dependabot:
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    if: contains(github.event.pull_request.user.login, 'dependabot')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - id: metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
-        with:
-          github-token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - id: decision
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          matched=false
+          non_major=true
+          while IFS= read -r line; do
+            if [[ "$line" =~ from[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2}[[:space:]]+to[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2} ]]; then
+              matched=true
+              [ "${BASH_REMATCH[1]}" = "${BASH_REMATCH[3]}" ] || non_major=false
+            fi
+          done <<< "$PR_TITLE"$'\n'"$PR_BODY"
+          if [ "$matched" = true ] && [ "$non_major" = true ]; then
+            echo "non_major=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "non_major=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Enable merge-commit auto-merge for non-major Dependabot updates
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.decision.outputs.non_major == 'true'
         env:
           GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}

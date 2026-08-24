@@ -1,6 +1,6 @@
 {
   "name": "lifecycle-kit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The stage stack: chemistry, biological scaling laws, compositional form, pigment, and 2.5D assembly.",
   "license": "MIT",
   "type": "module",

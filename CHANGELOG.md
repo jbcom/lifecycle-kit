@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/jbcom/lifecycle-kit/compare/v0.2.0...v0.3.0) (2026-08-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* consumers must install lifecycle-kit and update imports from @jbdevprimary/lifecycle-kit.
+
+### Features
+
+* publish unscoped npm package ([dfa8f63](https://github.com/jbcom/lifecycle-kit/commit/dfa8f634c30ffe12dad450eb1856b2ec56e52a66))
+
 ## [0.2.0](https://github.com/jbcom/lifecycle-kit/compare/v0.1.0...v0.2.0) (2026-08-24)
 
 

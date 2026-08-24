@@ -1,6 +1,6 @@
 ---
 title: Get started
-description: Install Lifecycle Kit and run a deterministic chemistry-to-form example.
+description: Install Lifecycle Kit and run a deterministic chemistry-and-metabolism example.
 ---
 
 ## Install
@@ -42,9 +42,14 @@ pnpm check:examples
 ```
 
 - [`quick-start.mjs`](https://github.com/jbcom/lifecycle-kit/blob/main/examples/quick-start.mjs)
-  demonstrates a compact chemistry and form pipeline.
+  demonstrates the smallest useful chemistry-and-metabolism loop.
 - [`world-creature.mjs`](https://github.com/jbcom/lifecycle-kit/blob/main/examples/world-creature.mjs)
   carries a world and creature through the full pipeline.
 
 Next, read [How the pipeline stays deterministic](./determinism/) or browse the
 [API reference](./api-reference/).
+
+To turn a `Path` into an SVG, Pixi Graphics calls, or depth-sorted render data,
+continue to [Render a creature](./rendering/). If an automated coding agent is
+integrating the library, use the explicit contract in
+[Agentic consumers](./agentic-consumers/) before it generates an integration.

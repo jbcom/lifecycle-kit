@@ -23,3 +23,10 @@ If an application needs randomness, select or generate its seed outside
 Lifecycle Kit and pass the resulting values as regular inputs. Persist those
 inputs with the application state. This keeps simulation replay, tests, and
 parallel generation predictable.
+
+## Output-size limits
+
+The form rules defend their own allocation boundaries. `repeat` rejects counts
+above 10,000, and `branch` rejects recursion that would emit more than 10,000
+copies (or descend beyond 64 levels). Treat those named `RangeError`s as a
+request to constrain the caller's design, not as a value to retry blindly.

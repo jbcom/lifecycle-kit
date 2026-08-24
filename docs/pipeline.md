@@ -28,9 +28,17 @@ the core geometry and assemblage outputs are renderer-neutral. Keep engine
 objects at the edge of an application: feed plain Lifecycle Kit inputs in and
 adapt its output at the final drawing boundary.
 
+For the exact draw order and the boundary between the built-in SVG/Pixi helpers
+and an application renderer, see [Render a creature](./rendering/).
+
 ## Persistence
 
 Metabolic state is the one deliberately evolving state model. Use
 `writeMetabolicState()` before persisting it; the writer rejects invalid state.
 Use `readMetabolicState()` when loading; it migrates known partial legacy
 records and falls back to a fresh newborn state for corrupt input.
+
+Only metabolic state has a persistence format. `Path`, `PaletteRamp`, and
+`AssembledPart` are plain serializable values, but they are derived views: keep
+the world inputs and metabolic/diet history as the durable simulation record,
+then recompute those views when needed.

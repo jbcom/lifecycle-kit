@@ -51,7 +51,7 @@ export default defineConfig({
   navbar: {
     links: [
       { type: "github", href: "https://github.com/jbcom/lifecycle-kit" },
-      { type: "npm", href: "https://www.npmjs.com/package/@jbdevprimary/lifecycle-kit" },
+      { type: "npm", href: "https://www.npmjs.com/package/lifecycle-kit" },
     ],
   },
   footer: {

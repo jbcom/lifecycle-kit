@@ -47,7 +47,7 @@ reviews:
       - name: "Breaking public API without declaration"
         mode: "error"
         instructions: >
-          This repository publishes @jbdevprimary/lifecycle-kit to npm.
+          This repository publishes lifecycle-kit to npm.
           Fail if a change removes, renames, or changes the signature or
           return shape of an export reachable from package.json#exports
           (the root export or any ./chem, ./forms, ./bio-laws, ./pigment,

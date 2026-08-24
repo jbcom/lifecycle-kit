@@ -1,5 +1,5 @@
 {
-  "name": "@jbdevprimary/lifecycle-kit",
+  "name": "lifecycle-kit",
   "version": "0.2.0",
   "description": "The stage stack: chemistry, biological scaling laws, compositional form, pigment, and 2.5D assembly.",
   "license": "MIT",
@@ -51,8 +51,8 @@
     "lint:fix": "biome check --write .",
     "check:examples": "node examples/quick-start.mjs && node examples/world-creature.mjs",
     "check:package": "publint && attw --pack . --profile esm-only",
-    "docs:api": "pnpm --filter @jbdevprimary/lifecycle-kit-docs exec typedoc --options typedoc.json",
-    "docs:build": "pnpm --filter @jbdevprimary/lifecycle-kit-docs build",
+    "docs:api": "pnpm --filter lifecycle-kit-docs exec typedoc --options typedoc.json",
+    "docs:build": "pnpm --filter lifecycle-kit-docs build",
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run check:examples && pnpm run check:package && pnpm run docs:build"
   },
   "devDependencies": {

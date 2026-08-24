@@ -1,9 +1,4 @@
-import {
-	composition,
-	deriveBiochemistry,
-	metabolise,
-	NEWBORN,
-} from "@jbdevprimary/lifecycle-kit/chem";
+import { composition, deriveBiochemistry, metabolise, NEWBORN } from "lifecycle-kit/chem";
 
 const world = deriveBiochemistry({ Si: 30 }, 500);
 const state = metabolise(

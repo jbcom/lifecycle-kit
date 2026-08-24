@@ -3,10 +3,21 @@
 Full scope from user's task: structure workflows as ci.yml > release.yml >
 cd.yml; dependabot + pre-commit + release-please + conventional commits;
 sensible non-blocking branch protection that prevents forks from
-compromising the repo; GitHub Pages + Astro docs under jonbogaty.com/lifecycle-kit;
+compromising the repo; GitHub Pages + Sourcey docs under jonbogaty.com/lifecycle-kit;
 pnpm workspace (root lib + docs/); brand docs from the hero image; SHA-pin
-every action via `gh`; publish to npm as jbdevprimary first; configure npm
+every action via `gh`; publish the public package as unscoped `lifecycle-kit`;
+configure npm
 OIDC trusted publishing via Claude in Chrome once published.
+
+## Current status (2026-08-24)
+
+- The production documentation renderer is Sourcey; the Astro/Starlight
+  implementation below is historical migration context only.
+- The scoped `@jbdevprimary/lifecycle-kit` bootstrap release was an incorrect
+  package identity because `jbdevprimary` is a user, not an npm organization.
+  The canonical public package is now being moved to unscoped `lifecycle-kit`.
+- SonarQube Cloud automatic analysis is configured in `.sonarcloud.properties`
+  and awaits the one-time SonarQube Cloud GitHub App binding.
 
 ## Queue
 

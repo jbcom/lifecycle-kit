@@ -12,11 +12,11 @@ Browse the [complete generated module index](./api/README/) or import a
 focused subpath directly:
 
 ```ts
-import * as chem from "@jbdevprimary/lifecycle-kit/chem";
-import * as bioLaws from "@jbdevprimary/lifecycle-kit/bio-laws";
-import * as forms from "@jbdevprimary/lifecycle-kit/forms";
-import * as pigment from "@jbdevprimary/lifecycle-kit/pigment";
-import * as assemblage from "@jbdevprimary/lifecycle-kit/assemblage";
+import * as chem from "lifecycle-kit/chem";
+import * as bioLaws from "lifecycle-kit/bio-laws";
+import * as forms from "lifecycle-kit/forms";
+import * as pigment from "lifecycle-kit/pigment";
+import * as assemblage from "lifecycle-kit/assemblage";
 ```
 
 The root entry point exposes the same stages as namespaces so colliding names

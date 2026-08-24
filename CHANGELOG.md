@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/jbcom/lifecycle-kit/compare/v0.3.0...v0.3.1) (2026-08-24)
+
+
+### Bug Fixes
+
+* **cd:** report npm publication outcome ([1a8d14c](https://github.com/jbcom/lifecycle-kit/commit/1a8d14cbba9a23e99dbb3f79ab95fcef48cb8aed))
+* **cd:** verify release tag commit ([edb8ac6](https://github.com/jbcom/lifecycle-kit/commit/edb8ac6a8551b6eea7ea39e5dbd282c150d4ab58))
+* **ci:** publish releases through CD OIDC ([3ff2617](https://github.com/jbcom/lifecycle-kit/commit/3ff2617904c943b03e74e2579bde469b6312f85b))
+* **ci:** publish releases through CD OIDC ([5bb4093](https://github.com/jbcom/lifecycle-kit/commit/5bb4093fab959bfb9aa1a4699715d28b7eb5081e))
+
 ## [0.3.0](https://github.com/jbcom/lifecycle-kit/compare/v0.2.0...v0.3.0) (2026-08-24)
 
 

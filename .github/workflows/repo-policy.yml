@@ -28,7 +28,11 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const isFork = context.payload.pull_request.head.repo.full_name !== context.payload.pull_request.base.repo.full_name;
+            // head.repo is null when the fork was deleted after the PR was
+            // opened — optional chaining makes that compare unequal to the
+            // base repo's name, so a deleted fork is still treated as
+            // untrusted rather than throwing.
+            const isFork = context.payload.pull_request.head.repo?.full_name !== context.payload.pull_request.base.repo.full_name;
             if (!isFork) {
               core.info("Same-repository PR — trusted development branch, no control-plane restriction.");
               return;

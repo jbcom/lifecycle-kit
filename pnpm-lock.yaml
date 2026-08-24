@@ -34,7 +34,7 @@ importers:
     dependencies:
       '@astrojs/starlight':
         specifier: ^0.41.7
-        version: 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3)
+        version: 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2)
       astro:
         specifier: ^7.2.4
         version: 7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0)
@@ -43,20 +43,20 @@ importers:
         version: 0.35.3(@types/node@24.13.3)
       starlight-llms-txt:
         specifier: ^0.11.0
-        version: 0.11.0(@astrojs/markdown-satteri@0.3.7)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)
+        version: 0.11.0(@astrojs/markdown-satteri@0.3.7)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)
       starlight-typedoc:
         specifier: ^0.23.1
-        version: 0.23.1(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@5.9.3)))(typedoc@0.28.20(typescript@5.9.3))
+        version: 0.23.1(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@7.0.2)))(typedoc@0.28.20(typescript@7.0.2))
       typedoc:
         specifier: ^0.28.20
-        version: 0.28.20(typescript@5.9.3)
+        version: 0.28.20(typescript@7.0.2)
       typedoc-plugin-markdown:
         specifier: ^4.12.0
-        version: 4.12.0(typedoc@0.28.20(typescript@5.9.3))
+        version: 4.12.0(typedoc@0.28.20(typescript@7.0.2))
     devDependencies:
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^7.0.2
+        version: 7.0.2
 
 packages:
 
@@ -2468,11 +2468,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@7.0.2:
     resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
     engines: {node: '>=16.20.0'}
@@ -2911,7 +2906,7 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.4.3
 
-  '@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3)':
+  '@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2)':
     dependencies:
       '@astrojs/markdown-satteri': 0.3.7
       '@astrojs/mdx': 7.0.7(@astrojs/markdown-satteri@0.3.7)(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)
@@ -2927,7 +2922,7 @@ snapshots:
       hast-util-select: 6.0.4
       hast-util-to-string: 3.0.1
       hastscript: 9.0.1
-      i18next: 26.4.0(typescript@5.9.3)
+      i18next: 26.4.0(typescript@7.0.2)
       js-yaml: 4.3.1
       klona: 2.0.6
       magic-string: 0.30.21
@@ -4410,9 +4405,9 @@ snapshots:
 
   http-cache-semantics@4.2.0: {}
 
-  i18next@26.4.0(typescript@5.9.3):
+  i18next@26.4.0(typescript@7.0.2):
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 7.0.2
 
   inline-style-parser@0.2.7: {}
 
@@ -5505,10 +5500,10 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.7)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0):
+  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.7)(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0):
     dependencies:
       '@astrojs/mdx': 7.0.7(@astrojs/markdown-satteri@0.3.7)(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)
-      '@astrojs/starlight': 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3)
+      '@astrojs/starlight': 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2)
       '@types/hast': 3.0.5
       '@types/micromatch': 4.0.10
       astro: 7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0)
@@ -5525,13 +5520,13 @@ snapshots:
       - '@astrojs/markdown-satteri'
       - supports-color
 
-  starlight-typedoc@0.23.1(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@5.9.3)))(typedoc@0.28.20(typescript@5.9.3)):
+  starlight-typedoc@0.23.1(@astrojs/starlight@0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@7.0.2)))(typedoc@0.28.20(typescript@7.0.2)):
     dependencies:
-      '@astrojs/starlight': 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@5.9.3)
+      '@astrojs/starlight': 0.41.7(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(astro@7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0))(supports-color@7.2.0)(typescript@7.0.2)
       astro: 7.2.4(@astrojs/markdown-remark@7.2.4(supports-color@7.2.0))(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(yaml@2.9.0)
       github-slugger: 2.0.0
-      typedoc: 0.28.20(typescript@5.9.3)
-      typedoc-plugin-markdown: 4.12.0(typedoc@0.28.20(typescript@5.9.3))
+      typedoc: 0.28.20(typescript@7.0.2)
+      typedoc-plugin-markdown: 4.12.0(typedoc@0.28.20(typescript@7.0.2))
 
   std-env@4.2.0: {}
 
@@ -5615,22 +5610,20 @@ snapshots:
   tslib@2.8.1:
     optional: true
 
-  typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@5.9.3)):
+  typedoc-plugin-markdown@4.12.0(typedoc@0.28.20(typescript@7.0.2)):
     dependencies:
-      typedoc: 0.28.20(typescript@5.9.3)
+      typedoc: 0.28.20(typescript@7.0.2)
 
-  typedoc@0.28.20(typescript@5.9.3):
+  typedoc@0.28.20(typescript@7.0.2):
     dependencies:
       '@gerrit0/mini-shiki': 3.23.0
       lunr: 2.3.9
       markdown-it: 14.3.0
       minimatch: 10.2.6
-      typescript: 5.9.3
+      typescript: 7.0.2
       yaml: 2.9.0
 
   typescript@5.6.1-rc: {}
-
-  typescript@5.9.3: {}
 
   typescript@7.0.2:
     optionalDependencies:

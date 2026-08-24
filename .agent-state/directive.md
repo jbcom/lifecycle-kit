@@ -88,14 +88,16 @@ OIDC trusted publishing via Claude in Chrome once published.
       the redundant /docs entry, on branch
       chore/fix-dependabot-workspace-scope. Also caught: docs/package.json
       still had typescript ^5.9.3 — the root TS7 upgrade never touched
-      the docs workspace member. Fixing both together.
-- [ ] Commit the dependabot.yml fix alone on this branch (don't also
+      the docs workspace member. Tracking both issues: the Dependabot
+      scope fix lands on this branch (dependabot.yml only); PR #4
+      handles the docs/package.json typescript bump itself.
+- [x] Commit the dependabot.yml fix alone on this branch (don't also
       hand-edit docs/package.json's typescript version — PR #4 already
       does exactly that and is CI-green; let it land normally instead
       of duplicating/conflicting with it)
-- [ ] Merge Dependabot PR #4 (typescript bump in docs/) once green — no
+- [x] Merge Dependabot PR #4 (typescript bump in docs/) once green — no
       automerge bot configured on this GitHub repo (unlike the Gitea
-      fleet), so this needs a manual merge
+      fleet), so this needs a manual merge. Merged 2026-08-24T14:01:30Z.
 - [ ] Verify Pages live at jonbogaty.com/lifecycle-kit
 - [ ] Verify npm publish succeeded under jbdevprimary
 - [ ] Use Claude in Chrome to configure npm trusted publishing (OIDC) for

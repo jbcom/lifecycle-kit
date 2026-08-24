@@ -1,6 +1,6 @@
 # @jbdevprimary/lifecycle-kit
 
-![Elemental chemistry flowing through tissue into a segmented procedural organism](./docs/public/lifecycle-kit-hero.webp)
+![Elemental chemistry flowing through tissue into a segmented procedural organism](https://raw.githubusercontent.com/jbcom/lifecycle-kit/main/docs/lifecycle-kit-hero.webp)
 
 [![CI](https://github.com/jbcom/lifecycle-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/jbcom/lifecycle-kit/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-365c4a.svg)](./LICENSE)
@@ -174,7 +174,7 @@ The stage boundaries are plain data: `Composition`, `Path`, `PaletteRamp`, and
 game-engine object. Consumers decide persistence, seeding, scheduling, and the
 final renderer.
 
-The [complete API reference](https://jonbogaty.com/lifecycle-kit/reference/)
+The [complete API reference](https://jonbogaty.com/lifecycle-kit/api-reference/)
 lists every public function and type, including units, validation behavior,
 persistence fallbacks, and renderer contracts.
 
@@ -211,10 +211,10 @@ pnpm check:examples  # execute both examples through the built export map
 pnpm check:package   # publint plus arethetypeswrong
 ```
 
-The full documentation site, including a typedoc-generated API reference for
+The full documentation site, including a TypeDoc-generated API reference for
 every subpath export, is published at
 [jonbogaty.com/lifecycle-kit](https://jonbogaty.com/lifecycle-kit/) and built
-from `docs/` with `pnpm --filter docs build`.
+from `docs/` with `pnpm docs:build`.
 
 ## Compatibility
 

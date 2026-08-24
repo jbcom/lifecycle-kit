@@ -1,0 +1,12 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../src/index.ts", "../src/chem/index.ts", "../src/bio-laws/index.ts", "../src/forms/index.ts", "../src/pigment/index.ts", "../src/assemblage/index.ts"],
+  "entryPointStrategy": "expand",
+  "tsconfig": "../tsconfig.json",
+  "out": "api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "hideGenerator": true
+}

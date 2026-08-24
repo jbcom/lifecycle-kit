@@ -74,6 +74,10 @@ export default defineConfig({
               group: "Concepts",
               pages: ["pipeline", "determinism"],
             },
+            {
+              group: "Guides",
+              pages: ["rendering", "agentic-consumers"],
+            },
             { group: "Reference", pages: ["api-reference"] },
             { group: "API: package", pages: apiPagesFor("api/README").concat(apiPagesFor("api/index/")) },
             { group: "API: chem", pages: apiPagesFor("api/chem/") },

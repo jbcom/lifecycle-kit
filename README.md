@@ -1,4 +1,4 @@
-# @jbcom/lifecycle
+# @jbcom/lifecycle-kit
 
 The stage stack: chemistry, biological scaling laws, compositional form,
 pigment, and 2.5D assembly.
@@ -6,7 +6,7 @@ pigment, and 2.5D assembly.
 ## Install
 
 ```sh
-pnpm add @jbcom/lifecycle
+pnpm add @jbcom/lifecycle-kit
 ```
 
 No runtime dependencies.
@@ -17,17 +17,17 @@ Import the stage you need. Subpaths are the primary interface — they keep the
 bundle small and make a symbol's provenance obvious.
 
 ```ts
-import { ... } from "@jbcom/lifecycle/chem";        // elements, bonding, tissue composition
-import { ... } from "@jbcom/lifecycle/bio-laws";    // cited biological scaling laws
-import { ... } from "@jbcom/lifecycle/forms";       // compositional rules emitting vector geometry
-import { ... } from "@jbcom/lifecycle/pigment";     // colour from diet, exposure, chemistry
-import { ... } from "@jbcom/lifecycle/assemblage";  // 2.5D assembly, lighting, depth
+import { ... } from "@jbcom/lifecycle-kit/chem";        // elements, bonding, tissue composition
+import { ... } from "@jbcom/lifecycle-kit/bio-laws";    // cited biological scaling laws
+import { ... } from "@jbcom/lifecycle-kit/forms";       // compositional rules emitting vector geometry
+import { ... } from "@jbcom/lifecycle-kit/pigment";     // colour from diet, exposure, chemistry
+import { ... } from "@jbcom/lifecycle-kit/assemblage";  // 2.5D assembly, lighting, depth
 ```
 
 The root export exposes each stage as a namespace:
 
 ```ts
-import { chem, forms } from "@jbcom/lifecycle";
+import { chem, forms } from "@jbcom/lifecycle-kit";
 ```
 
 It is namespaced rather than flat on purpose. `chem` and `assemblage` both

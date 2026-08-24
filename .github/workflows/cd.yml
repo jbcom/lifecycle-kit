@@ -1,9 +1,10 @@
 name: CD
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI, Release]
+    types: [completed]
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,6 +15,7 @@ concurrency:
 
 jobs:
   docs:
+    if: github.event.workflow_run.name == 'CI' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -26,6 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -43,3 +46,77 @@ jobs:
           path: docs/dist
       - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
         id: deployment
+
+  publish:
+    name: Publish npm package
+    if: github.event.workflow_run.name == 'Release' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - id: release
+        name: Find a release created from this trusted main commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          releases="$(gh api "repos/$REPOSITORY/releases" --paginate)"
+          tag="$(jq -r --arg sha "$HEAD_SHA" '[.[] | select(.target_commitish == $sha) | .tag_name] | first // empty' <<< "$releases")"
+
+          # GitHub normally records Release Please's target commit SHA, but a
+          # release can retain the branch name as target_commitish. Resolve a
+          # candidate tag through the commits API before trusting it to publish.
+          if [ -z "$tag" ]; then
+            while IFS= read -r candidate; do
+              candidate_sha="$(gh api "repos/$REPOSITORY/commits/$candidate" --jq .sha)"
+              if [ "$candidate_sha" = "$HEAD_SHA" ]; then
+                tag="$candidate"
+                break
+              fi
+            done < <(jq -r '.[].tag_name' <<< "$releases")
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Report publication decision
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "::notice::Release Please did not create a GitHub release for this commit; npm publication is intentionally skipped."
+            printf '%s\n\n%s\n' "### npm publication" "Skipped: no release was created for this commit." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Publishing release $TAG from its immutable tag."
+            printf '%s\n\n%s\n' "### npm publication" "Publishing \`$TAG\` from its immutable tag." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.release.outputs.tag != ''
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        if: steps.release.outputs.tag != ''
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.release.outputs.tag != ''
+        with:
+          node-version-file: '.nvmrc'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+          registry-url: https://registry.npmjs.org
+      - if: steps.release.outputs.tag != ''
+        run: pnpm install --frozen-lockfile
+      - if: steps.release.outputs.tag != ''
+        run: pnpm verify
+      - if: steps.release.outputs.tag != ''
+        name: Publish with npm trusted publishing
+        run: pnpm publish --access public --provenance --no-git-checks
+      - if: steps.release.outputs.tag != ''
+        name: Report published package
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          echo "Published lifecycle-kit from $TAG through npm trusted publishing."
+          printf '%s\n\n%s\n' "### npm publication" "Published \`lifecycle-kit\` from \`$TAG\` through npm trusted publishing." >> "$GITHUB_STEP_SUMMARY"

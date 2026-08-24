@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.2](https://github.com/jbcom/lifecycle-kit/compare/v0.3.1...v0.3.2) (2026-08-24)
+
+
+### Bug Fixes
+
+* **ci:** classify Dependabot updates without actions ([f9697c1](https://github.com/jbcom/lifecycle-kit/commit/f9697c1a4b50270aac44091a35ab249bedefe14e))
+* **ci:** constrain encapsulated PR automation ([ae20976](https://github.com/jbcom/lifecycle-kit/commit/ae20976dc8e52c7c3259e771eda569b978641579))
+* **ci:** use valid workflow output identifiers ([d68824c](https://github.com/jbcom/lifecycle-kit/commit/d68824c4365839bcf9d9670abd0cbe6bf0cd52c7))
+* **release:** trigger trusted release auto-merge ([968e186](https://github.com/jbcom/lifecycle-kit/commit/968e1864b7fc4344ac727b1020bdde01d13f009c))
+
 ## [0.3.1](https://github.com/jbcom/lifecycle-kit/compare/v0.3.0...v0.3.1) (2026-08-24)
 
 

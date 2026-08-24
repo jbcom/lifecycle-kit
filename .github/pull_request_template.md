@@ -7,6 +7,6 @@
 <!-- Tests, domain citations, examples, or screenshots that demonstrate the result. -->
 
 - [ ] `pnpm verify` passes locally.
-- [ ] Public API or behavior changes are reflected in `docs/API.md` and examples.
+- [ ] Public API or behavior changes are reflected in TSDoc comments and examples.
 - [ ] New chemistry or biological-law constants cite their source beside the implementation.
 - [ ] Breaking changes use a Conventional Commit `!` or `BREAKING CHANGE:` footer.

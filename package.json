@@ -37,7 +37,6 @@
     "dist",
     "src/**/*.ts",
     "!src/**/__tests__/**",
-    "docs",
     "examples",
     "README.md",
     "LICENSE"
@@ -50,10 +49,9 @@
     "coverage": "vitest run --coverage",
     "lint": "biome ci .",
     "lint:fix": "biome check --write .",
-    "check:docs": "node scripts/check-api-docs.mjs",
     "check:examples": "node examples/quick-start.mjs && node examples/world-creature.mjs",
     "check:package": "publint && attw --pack . --profile esm-only",
-    "verify": "pnpm run lint && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run check:docs && pnpm run check:examples && pnpm run check:package"
+    "verify": "pnpm run lint && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run check:examples && pnpm run check:package"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",

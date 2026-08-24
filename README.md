@@ -1,6 +1,6 @@
 # @jbdevprimary/lifecycle-kit
 
-![Elemental chemistry flowing through tissue into a segmented procedural organism](./docs/assets/lifecycle-kit-hero.webp)
+![Elemental chemistry flowing through tissue into a segmented procedural organism](./docs/public/lifecycle-kit-hero.webp)
 
 [![CI](https://github.com/jbcom/lifecycle-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/jbcom/lifecycle-kit/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-365c4a.svg)](./LICENSE)
@@ -174,9 +174,9 @@ The stage boundaries are plain data: `Composition`, `Path`, `PaletteRamp`, and
 game-engine object. Consumers decide persistence, seeding, scheduling, and the
 final renderer.
 
-The [complete API reference](./docs/API.md) lists every public function and
-type, including units, validation behavior, persistence fallbacks, and renderer
-contracts.
+The [complete API reference](https://jonbogaty.com/lifecycle-kit/reference/)
+lists every public function and type, including units, validation behavior,
+persistence fallbacks, and renderer contracts.
 
 For code you can run unchanged, start with the
 [two-stage quick start](./examples/quick-start.mjs), then follow the
@@ -188,8 +188,8 @@ quietly drift away from the released API.
 
 The repository pins Node 22 and pnpm 11.23.0. The same command used by CI
 checks formatting and lint rules, TypeScript, the full coverage floor, the
-production build, API-reference completeness, runnable examples, every export
-map, and the packed package's ESM declarations:
+production build, runnable examples, and the packed package's ESM
+declarations:
 
 ```sh
 corepack enable
@@ -207,10 +207,14 @@ pnpm typecheck       # strict TypeScript without emitting
 pnpm test            # 500+ unit, regression, and integration assertions
 pnpm coverage        # tests plus enforced coverage floors
 pnpm build           # ESM JavaScript, declarations, maps, and source maps
-pnpm check:docs      # every runtime export appears in docs/API.md
 pnpm check:examples  # execute both examples through the built export map
 pnpm check:package   # publint plus arethetypeswrong
 ```
+
+The full documentation site, including a typedoc-generated API reference for
+every subpath export, is published at
+[jonbogaty.com/lifecycle-kit](https://jonbogaty.com/lifecycle-kit/) and built
+from `docs/` with `pnpm --filter docs build`.
 
 ## Compatibility
 

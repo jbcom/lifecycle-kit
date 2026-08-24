@@ -63,7 +63,23 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          tag="$(gh api "repos/$REPOSITORY/releases" --paginate --jq ".[] | select(.target_commitish == \"$HEAD_SHA\") | .tag_name" | head -n 1)"
+          set -euo pipefail
+          releases="$(gh api "repos/$REPOSITORY/releases" --paginate)"
+          tag="$(jq -r --arg sha "$HEAD_SHA" '[.[] | select(.target_commitish == $sha) | .tag_name] | first // empty' <<< "$releases")"
+
+          # GitHub normally records Release Please's target commit SHA, but a
+          # release can retain the branch name as target_commitish. Resolve a
+          # candidate tag through the commits API before trusting it to publish.
+          if [ -z "$tag" ]; then
+            while IFS= read -r candidate; do
+              candidate_sha="$(gh api "repos/$REPOSITORY/commits/$candidate" --jq .sha)"
+              if [ "$candidate_sha" = "$HEAD_SHA" ]; then
+                tag="$candidate"
+                break
+              fi
+            done < <(jq -r '.[].tag_name' <<< "$releases")
+          fi
+
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
       - name: Report publication decision
         env:

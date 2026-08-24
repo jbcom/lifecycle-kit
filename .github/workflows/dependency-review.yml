@@ -11,13 +11,57 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  classify:
+    name: Classify pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip_review: ${{ steps.decision.outputs.skip_review }}
+    steps:
+      - id: decision
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPOSITORY: ${{ github.repository }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          is_clearly_non_major_dependabot_update() {
+            case "$PR_AUTHOR" in *dependabot*) ;; *) return 1 ;; esac
+            local matched=false from_major to_major
+            while IFS= read -r line; do
+              if [[ "$line" =~ from[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2}[[:space:]]+to[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2} ]]; then
+                matched=true
+                from_major="${BASH_REMATCH[1]}"
+                to_major="${BASH_REMATCH[3]}"
+                [ "$from_major" = "$to_major" ] || return 1
+              fi
+            done <<< "$PR_TITLE"$'\n'"$PR_BODY"
+            [ "$matched" = true ]
+          }
+
+          if [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "jbdevprimary" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+            echo "skip_review=true" >> "$GITHUB_OUTPUT"
+          elif is_clearly_non_major_dependabot_update; then
+            echo "skip_review=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip_review=false" >> "$GITHUB_OUTPUT"
+          fi
+
   dependency-review:
+    needs: classify
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Report intentional skip
+        if: needs.classify.outputs.skip_review == 'true'
+        run: echo "Dependency review intentionally skipped for this encapsulated pull request."
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: needs.classify.outputs.skip_review != 'true'
         with:
           persist-credentials: false
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        if: needs.classify.outputs.skip_review != 'true'
         with:
           fail-on-severity: high

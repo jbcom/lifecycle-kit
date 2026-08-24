@@ -1,0 +1,19 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Lifecycle Kit",
+  "description": "A deterministic, ESM-only TypeScript stage stack for procedural creature generation.",
+  "branch": "main",
+  "folders": [],
+  "excludeFolders": ["node_modules", "dist", "coverage", "docs/api", "docs/dist"],
+  "excludeFiles": ["CHANGELOG.md"],
+  "rules": [
+    "Use the explicit stage subpaths as the primary public API.",
+    "Treat all exported pipeline functions as pure and deterministic.",
+    "Validate structured inputs at the stage boundary before deriving values."
+  ],
+  "previousVersions": [
+    {
+      "tag": "v0.3.1"
+    }
+  ]
+}

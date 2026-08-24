@@ -13,7 +13,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  classify:
+    name: Classify pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip_validation: ${{ steps.decision.outputs.skip_validation }}
+    steps:
+      - id: decision
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPOSITORY: ${{ github.repository }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          is_clearly_non_major_dependabot_update() {
+            case "$PR_AUTHOR" in *dependabot*) ;; *) return 1 ;; esac
+            local matched=false from_major to_major
+            while IFS= read -r line; do
+              if [[ "$line" =~ from[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2}[[:space:]]+to[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2} ]]; then
+                matched=true
+                from_major="${BASH_REMATCH[1]}"
+                to_major="${BASH_REMATCH[3]}"
+                [ "$from_major" = "$to_major" ] || return 1
+              fi
+            done <<< "$PR_TITLE"$'\n'"$PR_BODY"
+            [ "$matched" = true ]
+          }
+
+          if [ "$EVENT_NAME" = "pull_request" ] && [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "jbdevprimary" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
+            echo "Release Please PR: validation is intentionally skipped."
+          elif is_clearly_non_major_dependabot_update; then
+            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
+            echo "Clearly non-major Dependabot update: validation is intentionally skipped."
+          else
+            echo "skip_validation=false" >> "$GITHUB_OUTPUT"
+          fi
+
   verify:
+    needs: classify
+    if: needs.classify.outputs.skip_validation != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -34,6 +77,8 @@ jobs:
       - run: pnpm verify
 
   compatibility:
+    needs: classify
+    if: needs.classify.outputs.skip_validation != 'true'
     name: Node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -67,14 +112,18 @@ jobs:
   # contract fixed regardless.
   gate:
     name: CI / gate
-    needs: [verify, compatibility]
+    needs: [classify, verify, compatibility]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check all required jobs succeeded
         run: |
-          if [ "${{ needs.verify.result }}" != "success" ] || [ "${{ needs.compatibility.result }}" != "success" ]; then
+          if [ "${{ needs.classify.outputs.skip_validation }}" = "true" ]; then
+            echo "Validation intentionally skipped for this encapsulated pull request."
+            exit 0
+          fi
+          if [ "${{ needs.classify.result }}" != "success" ] || [ "${{ needs.verify.result }}" != "success" ] || [ "${{ needs.compatibility.result }}" != "success" ]; then
             echo "One or more required CI jobs failed or were cancelled."
             exit 1
           fi

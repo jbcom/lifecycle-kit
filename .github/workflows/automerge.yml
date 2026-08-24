@@ -1,0 +1,51 @@
+name: Auto-merge encapsulated pull requests
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  release-please:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'jbdevprimary' && startsWith(github.event.pull_request.head.ref, 'release-please--')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Enable merge-commit auto-merge for Release Please
+        env:
+          GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --merge "$PR_URL"
+
+  dependabot:
+    if: github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.user.login, 'dependabot')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - id: decision
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          matched=false
+          non_major=true
+          while IFS= read -r line; do
+            if [[ "$line" =~ from[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2}[[:space:]]+to[[:space:]]+v?([0-9]+)(\.[0-9]+){1,2} ]]; then
+              matched=true
+              [ "${BASH_REMATCH[1]}" = "${BASH_REMATCH[3]}" ] || non_major=false
+            fi
+          done <<< "$PR_TITLE"$'\n'"$PR_BODY"
+          if [ "$matched" = true ] && [ "$non_major" = true ]; then
+            echo "non_major=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "non_major=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Enable merge-commit auto-merge for non-major Dependabot updates
+        if: steps.decision.outputs.non_major == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --merge "$PR_URL"

@@ -22,5 +22,8 @@ jobs:
       - id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
+          # CI_GITHUB_TOKEN is the organization-managed token that lets the
+          # resulting Release Please PR trigger the trusted auto-merge flow.
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json

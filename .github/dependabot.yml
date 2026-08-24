@@ -6,7 +6,15 @@ updates:
     schedule:
       interval: weekly
     groups:
-      npm-dependencies:
+      npm-major:
+        update-types:
+          - major
+        patterns:
+          - "*"
+      npm-non-major:
+        update-types:
+          - minor
+          - patch
         patterns:
           - "*"
 
@@ -15,6 +23,14 @@ updates:
     schedule:
       interval: weekly
     groups:
-      github-actions:
+      github-actions-major:
+        update-types:
+          - major
+        patterns:
+          - "*"
+      github-actions-non-major:
+        update-types:
+          - minor
+          - patch
         patterns:
           - "*"

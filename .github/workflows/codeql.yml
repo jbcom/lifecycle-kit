@@ -11,7 +11,36 @@ permissions:
   contents: read
 
 jobs:
+  classify:
+    name: Classify pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip-analysis: ${{ steps.decision.outputs.skip-analysis }}
+    steps:
+      - id: dependabot
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ github.token }}
+      - id: decision
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+            echo "skip-analysis=true" >> "$GITHUB_OUTPUT"
+          elif [ "$PR_AUTHOR" = "dependabot[bot]" ] && [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
+            echo "skip-analysis=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip-analysis=false" >> "$GITHUB_OUTPUT"
+          fi
+
   analyze:
+    needs: classify
+    if: needs.classify.outputs.skip-analysis != 'true'
     runs-on: ubuntu-latest
     permissions:
       security-events: write

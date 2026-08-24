@@ -1,4 +1,4 @@
-# @jbcom/lifecycle-kit
+# @jbdevprimary/lifecycle-kit
 
 The stage stack: chemistry, biological scaling laws, compositional form,
 pigment, and 2.5D assembly.
@@ -6,7 +6,7 @@ pigment, and 2.5D assembly.
 ## Install
 
 ```sh
-pnpm add @jbcom/lifecycle-kit
+pnpm add @jbdevprimary/lifecycle-kit
 ```
 
 No runtime dependencies.
@@ -19,7 +19,7 @@ bundle small and make a symbol's provenance obvious.
 ### `chem` — elements, bonding, tissue composition
 
 ```ts
-import { deriveBiochemistry, normalise, compositionColor } from "@jbcom/lifecycle-kit/chem";
+import { deriveBiochemistry, normalise, compositionColor } from "@jbdevprimary/lifecycle-kit/chem";
 
 // Which backbone element wins on this world, from its temperature and
 // element abundances.
@@ -37,7 +37,7 @@ compositionColor(body); // "#beb5af" — a real hex colour, never NaN
 ### `bio-laws` — cited biological scaling laws
 
 ```ts
-import { expectedBrainMass, encephalizationQuotient, maxGroupSize } from "@jbcom/lifecycle-kit/bio-laws";
+import { expectedBrainMass, encephalizationQuotient, maxGroupSize } from "@jbdevprimary/lifecycle-kit/bio-laws";
 
 expectedBrainMass(70); // ~0.24 kg, from Jerison's mammalian brain/body scaling
 encephalizationQuotient(1.4, 62); // ~6.3, a human-scale EQ (Jerison 1973)
@@ -47,7 +47,7 @@ maxGroupSize(4.1); // ~148 — Dunbar's number, from his own neocortex-ratio reg
 ### `forms` — compositional rules emitting vector geometry
 
 ```ts
-import { taper, repeat, bounds } from "@jbcom/lifecycle-kit/forms";
+import { taper, repeat, bounds } from "@jbdevprimary/lifecycle-kit/forms";
 
 // A single tapered body segment.
 const segment = taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4, part: "seg" });
@@ -61,8 +61,8 @@ bounds(body); // { min: { x, y }, max: { x, y } } — the emitted geometry's exa
 ### `pigment` — colour from diet, exposure, chemistry
 
 ```ts
-import { derivePigments, paletteRamp, NO_DIET_HISTORY, recordMeal } from "@jbcom/lifecycle-kit/pigment";
-import { EMPTY_COMPOSITION } from "@jbcom/lifecycle-kit/chem";
+import { derivePigments, paletteRamp, NO_DIET_HISTORY, recordMeal } from "@jbdevprimary/lifecycle-kit/pigment";
+import { EMPTY_COMPOSITION } from "@jbdevprimary/lifecycle-kit/chem";
 
 const diet = recordMeal(NO_DIET_HISTORY, 0.8); // a mostly plant-matter meal
 const composition = { ...EMPTY_COMPOSITION, keratin: 1 };
@@ -77,8 +77,8 @@ paletteRamp(composition, pigments, { metallic: 0.1, roughness: 0.7, opacity: 1 }
 ### `assemblage` — 2.5D assembly, lighting, depth
 
 ```ts
-import { assemble, shade, DEFAULT_LIGHT } from "@jbcom/lifecycle-kit/assemblage";
-import { taper } from "@jbcom/lifecycle-kit/forms";
+import { assemble, shade, DEFAULT_LIGHT } from "@jbdevprimary/lifecycle-kit/assemblage";
+import { taper } from "@jbdevprimary/lifecycle-kit/forms";
 
 const segment = taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4, part: "seg" });
 
@@ -92,7 +92,7 @@ shade("#beb5af", part.light); // the tissue colour, shaded by that part's light 
 The root export exposes each stage as a namespace:
 
 ```ts
-import { chem, forms } from "@jbcom/lifecycle-kit";
+import { chem, forms } from "@jbdevprimary/lifecycle-kit";
 
 chem.normalise(/* ... */);
 forms.taper(/* ... */);

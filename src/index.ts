@@ -1,5 +1,5 @@
 /**
- * @jbcom/lifecycle-kit — the stage stack.
+ * @jbdevprimary/lifecycle-kit — the stage stack.
  *
  * Chemistry, biological scaling laws, compositional form, pigment, and 2.5D
  * assembly. Previously six separate packages; they are one system and their own
@@ -9,8 +9,8 @@
  * Prefer importing a stage directly — it keeps the bundle small and makes the
  * provenance of a symbol obvious:
  *
- *   import { ... } from "@jbcom/lifecycle-kit/chem";
- *   import { ... } from "@jbcom/lifecycle-kit/forms";
+ *   import { ... } from "@jbdevprimary/lifecycle-kit/chem";
+ *   import { ... } from "@jbdevprimary/lifecycle-kit/forms";
  *
  * This root module re-exports the stages as namespaces rather than flatly.
  * A flat re-export is not possible without silently shadowing: `chem` and

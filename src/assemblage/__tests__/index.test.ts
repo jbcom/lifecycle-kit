@@ -3,7 +3,7 @@ import * as assemblage from "../index.js";
 
 /**
  * `./assemblage` is a real `package.json` "exports" subpath — the actual
- * surface a consumer of `@jbcom/lifecycle-kit/assemblage` imports from. Every
+ * surface a consumer of `@jbdevprimary/lifecycle-kit/assemblage` imports from. Every
  * other test in this package imports the concrete modules (`../assemble.js`,
  * `../light.js`, `../shadow.js`) directly, which means the barrel itself —
  * whether the re-exports it promises are actually reachable through it — had

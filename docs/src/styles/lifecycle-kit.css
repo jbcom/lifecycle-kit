@@ -1,0 +1,87 @@
+/*
+ * Lifecycle Kit docs theme.
+ *
+ * Palette drawn from the project hero illustration: warm parchment paper,
+ * a sage-green accent (the same #365c4a used in the README's license
+ * badge), and dusty rose / ochre / teal-gray tissue tones as supporting
+ * colors for callouts and syntax highlighting.
+ */
+
+:root {
+	--lk-parchment: #f9f5f0;
+	--lk-parchment-dark: #f0e9e0;
+	--lk-ink: #2b2b28;
+	--lk-sage: #365c4a;
+	--lk-sage-light: #728c80;
+	--lk-sage-pale: #aebdb6;
+	--lk-sage-dark: #254033;
+	--lk-rose: #b5566a;
+	--lk-ochre: #c99a3e;
+	--lk-teal-gray: #4b6b6a;
+
+	--sl-color-accent-low: #dce6e1;
+	--sl-color-accent: var(--lk-sage);
+	--sl-color-accent-high: var(--lk-sage-dark);
+
+	--sl-color-white: var(--lk-ink);
+	--sl-color-gray-1: #3a3a36;
+	--sl-color-gray-2: #55554f;
+	--sl-color-gray-3: #75756c;
+	--sl-color-gray-4: #9a9a8e;
+	--sl-color-gray-5: #c4c2b6;
+	--sl-color-gray-6: var(--lk-parchment-dark);
+	--sl-color-black: var(--lk-parchment);
+
+	--sl-color-bg: var(--lk-parchment);
+	--sl-color-bg-nav: var(--lk-parchment);
+	--sl-color-bg-sidebar: var(--lk-parchment-dark);
+	--sl-color-bg-inline-code: #eee4d8;
+}
+
+:root[data-theme="dark"] {
+	--lk-parchment: #1c1a17;
+	--lk-parchment-dark: #262320;
+	--lk-ink: #ece6da;
+	--lk-sage: #7fa696;
+	--lk-sage-light: #9fbeb1;
+	--lk-sage-pale: #c3d6cd;
+	--lk-sage-dark: #4d6d5e;
+	--lk-rose: #d98298;
+	--lk-ochre: #e0b95c;
+	--lk-teal-gray: #82a5a3;
+
+	--sl-color-accent-low: #2f4a3f;
+	--sl-color-accent: var(--lk-sage);
+	--sl-color-accent-high: var(--lk-sage-pale);
+
+	--sl-color-white: var(--lk-ink);
+	--sl-color-gray-1: #ece6da;
+	--sl-color-gray-2: #c9c3b7;
+	--sl-color-gray-3: #9a9488;
+	--sl-color-gray-4: #6f695f;
+	--sl-color-gray-5: #453f37;
+	--sl-color-gray-6: var(--lk-parchment-dark);
+	--sl-color-black: var(--lk-parchment);
+
+	--sl-color-bg: var(--lk-parchment);
+	--sl-color-bg-nav: var(--lk-parchment);
+	--sl-color-bg-sidebar: var(--lk-parchment-dark);
+	--sl-color-bg-inline-code: #2c2822;
+}
+
+:root {
+	--sl-font: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+	--sl-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.sl-markdown-content code {
+	color: var(--lk-teal-gray);
+}
+
+.sl-markdown-content a {
+	text-decoration-color: var(--lk-rose);
+}
+
+.hero-tagline {
+	color: var(--lk-ochre);
+}

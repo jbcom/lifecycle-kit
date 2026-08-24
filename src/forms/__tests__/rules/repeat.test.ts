@@ -15,9 +15,7 @@ describe("repeat", () => {
 			part: "segment",
 		});
 		expect(body.shapes).toHaveLength(3);
-		expect(
-			body.shapes.map((s) => (s.kind === "ellipse" ? s.center.x : null)),
-		).toEqual([0, 2, 4]);
+		expect(body.shapes.map((s) => (s.kind === "ellipse" ? s.center.x : null))).toEqual([0, 2, 4]);
 	});
 
 	it("tags copies with increasing index, low index first", () => {

@@ -46,6 +46,19 @@ describe("biochemistry", () => {
 		it("restores silicon once the water boils off", () => {
 			expect(chainStability("Si", 400)).toBeGreaterThan(chainStability("Si", 288) * 10);
 		});
+
+		it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
+			"rejects a non-physical absolute temperature: %s",
+			(kelvin) => {
+				expect(() => chainStability("C", kelvin)).toThrow(/chainStability: kelvin/);
+			},
+		);
+
+		it("rejects an unsupported backbone from untyped JavaScript", () => {
+			expect(() => chainStability("Fe" as never, 288)).toThrow(
+				/chainStability: symbol must be C, Si, or S/,
+			);
+		});
 	});
 
 	describe("backbone choice", () => {
@@ -93,6 +106,20 @@ describe("biochemistry", () => {
 		});
 
 		/**
+		 * The genuine crossover the header promises: silicon can win even on a
+		 * WET world, if it is abundant enough to overcome the hydrolysis penalty
+		 * carbon does not pay. Every other silicon test in this file is dry
+		 * (kelvin >= 500), so the "Silicon ... survive this world's water"
+		 * rationale string had never actually been produced by this function.
+		 */
+		it("chooses silicon even on a wet world when silicon is overwhelming", () => {
+			const result = deriveBiochemistry({ Si: 100_000 }, 288);
+			expect(result.backbone).toBe("Si");
+			expect(result.rationale).toMatch(/[Ss]ilicon/);
+			expect(result.rationale).toMatch(/survive this world's water/i);
+		});
+
+		/**
 		 * The rationale has to name the DECIDING CONDITION, not restate the
 		 * result.
 		 *
@@ -134,6 +161,22 @@ describe("biochemistry", () => {
 			const b = deriveBiochemistry({ Si: 12 }, 420);
 			expect(a).toEqual(b);
 		});
+
+		/**
+		 * `margin` is `winner.score / runnerUp.score`, guarded by
+		 * `runnerUp.score > 0` so a zero runner-up reports Infinity rather than
+		 * NaN. At an ordinary temperature the runner-up's score is always some
+		 * tiny positive float, so that guard's false branch had never actually
+		 * run. On an absurdly hot world every candidate's Arrhenius survival
+		 * term underflows to exactly 0 — the winner included — which is exactly
+		 * when the guard matters: `0 / 0` is NaN, and the guard exists so the
+		 * result is a defensible "no contest" Infinity instead.
+		 */
+		it("reports an infinite margin rather than NaN when every candidate's score underflows to zero", () => {
+			const result = deriveBiochemistry({}, 500_000);
+			expect(result.margin).toBe(Number.POSITIVE_INFINITY);
+			expect(Number.isNaN(result.margin)).toBe(false);
+		});
 	});
 
 	describe("the tables it rests on", () => {
@@ -150,6 +193,21 @@ describe("biochemistry", () => {
 
 		it("scores an absent element at zero", () => {
 			expect(backboneScore("Si", { Si: 0 }, 500)).toBe(0);
+		});
+
+		it("rejects invalid world abundances before they can reverse or poison a score", () => {
+			expect(() => backboneScore("C", { C: -1 }, 288)).toThrow(
+				/backboneScore: worldAbundance\.C cannot be negative/,
+			);
+			expect(() => deriveBiochemistry({ Si: Number.NaN }, 500)).toThrow(
+				/deriveBiochemistry: worldAbundance\.Si must be a finite number/,
+			);
+		});
+
+		it("rejects a missing abundance record with an argument-specific error", () => {
+			expect(() => deriveBiochemistry(undefined as unknown as Record<string, number>, 288)).toThrow(
+				/deriveBiochemistry: worldAbundance must be an object, got undefined/,
+			);
 		});
 	});
 
@@ -168,6 +226,12 @@ describe("biochemistry", () => {
 
 		it("leaves a template without a placeholder alone", () => {
 			expect(inBackbone({ H: 2, O: 1 }, "Si")).toEqual({ H: 2, O: 1 });
+		});
+
+		it("rejects an unsupported substitution backbone", () => {
+			expect(() => inBackbone({ X: 1 }, "Fe" as never)).toThrow(
+				/inBackbone: backbone must be C, Si, or S/,
+			);
 		});
 	});
 });

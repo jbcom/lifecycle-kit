@@ -46,8 +46,8 @@ export interface GraphicsLike {
  * Issue one shape's geometry.
  *
  * Deliberately geometry only — no `fill()` and no `stroke()`. A form rule says
- * where the outline is; colour comes from `lifecycle-pigment` and light from
- * `lifecycle-assemblage`. The consumer calls `fill`/`stroke` itself after this
+ * where the outline is; colour comes from pigment and light from assemblage.
+ * The consumer calls `fill`/`stroke` itself after this
  * returns, which is exactly the pattern the existing renderers already
  * use (`g.ellipse(...).fill({ color, alpha })`) and so requires no rewrite.
  */

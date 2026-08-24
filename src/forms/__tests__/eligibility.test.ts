@@ -116,15 +116,12 @@ describe("kind eligibility as parameter ranges", () => {
 		// other's range — a phototroph COULD call repeat() with count=5 and
 		// get a segmented plant, because eligibility is a caller-side policy,
 		// never a rule-side gate. That absence of a gate is the property.
-		const segmentedStalk = repeat(
-			taper({ from: 0.1, to: 0.1, bulgeAt: 0.5, length: 1 }),
-			{
-				count: 5,
-				axis: { x: 1, y: 0 },
-				spacing: 1,
-				part: "segment",
-			},
-		);
+		const segmentedStalk = repeat(taper({ from: 0.1, to: 0.1, bulgeAt: 0.5, length: 1 }), {
+			count: 5,
+			axis: { x: 1, y: 0 },
+			spacing: 1,
+			part: "segment",
+		});
 		expect(segmentedStalk.shapes).toHaveLength(5);
 	});
 

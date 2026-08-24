@@ -1,9 +1,4 @@
-import type {
-	Ellipse,
-	Shape,
-	SubPath,
-	Vec2,
-} from "../forms/index.js";
+import type { Ellipse, Shape, SubPath, Vec2 } from "../forms/index.js";
 import type { Light } from "./light.js";
 import { normalise } from "./light.js";
 
@@ -23,7 +18,7 @@ import { normalise } from "./light.js";
  * The obvious implementation is to rasterise every caster into a buffer and
  * sample it per receiver pixel. That is banned here, and rightly: a pixel grid
  * would quantise away the continuity that is the entire argument for vectors
- * (see `lifecycle-forms`' path.ts header). "Slightly larger limb means
+ * (see the forms stage's path.ts header). "Slightly larger limb means
  * slightly deeper shadow" has to survive, and in a 12x9 grid it rounds to the
  * same cells until it abruptly does not.
  *
@@ -46,7 +41,7 @@ import { normalise } from "./light.js";
  * A receiver's coverage is computed from axis-aligned bounds, not from a true
  * polygon clip of two outlines. Two reasons, in order of weight:
  *
- * 1. `lifecycle-forms` already solves exact bounds for the whole segment
+ * 1. The forms stage already solves exact bounds for the whole segment
  *    vocabulary, including Bézier extrema. Reusing it means one exact
  *    implementation rather than a second solver that agrees with it on most
  *    inputs — the failure mode the forms package explicitly calls out.
@@ -103,7 +98,7 @@ function finite(value: number | undefined, fallback: number): number {
  * The extent of one shape.
  *
  * Exact for ellipses and for straight runs; a curve's true extremum needs the
- * Bézier derivative roots that `lifecycle-forms` already solves, and control
+ * Bézier derivative roots that the forms stage already solves, and control
  * points are deliberately included as a conservative outer bound here rather
  * than re-deriving that solver. A shadow cast from a box slightly larger than
  * the curve errs toward more shadow, never toward a limb that fails to cast.
@@ -202,11 +197,7 @@ export interface Caster {
  * report 150% coverage and clamp, losing the difference between "mostly
  * covered" and "utterly buried".
  */
-export function occlusion(
-	receiver: Caster,
-	casters: readonly Caster[],
-	light: Light,
-): number {
+export function occlusion(receiver: Caster, casters: readonly Caster[], light: Light): number {
 	const box = shapeBox(receiver.shape);
 	const area = boxArea(box);
 	if (!(area > 0)) return 0;
@@ -222,11 +213,7 @@ export function occlusion(
 		if (!(gap > 0)) continue;
 
 		const casterBox = shapeBox(caster.shape);
-		const slid = offsetBox(
-			casterBox,
-			nx * gap * OFFSET_PER_DEPTH,
-			ny * gap * OFFSET_PER_DEPTH,
-		);
+		const slid = offsetBox(casterBox, nx * gap * OFFSET_PER_DEPTH, ny * gap * OFFSET_PER_DEPTH);
 
 		const shared = overlapArea(box, slid);
 		if (!(shared > 0)) continue;
@@ -256,8 +243,6 @@ export function occlusion(
  */
 export function shadowed(light: number, coverage: number): number {
 	const base = Number.isFinite(light) ? light : 0.5;
-	const cover = Number.isFinite(coverage)
-		? Math.max(0, Math.min(1, coverage))
-		: 0;
+	const cover = Number.isFinite(coverage) ? Math.max(0, Math.min(1, coverage)) : 0;
 	return base * (1 - MAX_OCCLUSION * cover);
 }

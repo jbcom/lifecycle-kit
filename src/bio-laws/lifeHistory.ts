@@ -3,9 +3,9 @@ import { finite, nonNegative, positive } from "./validate.js";
 /**
  * Life history laws — how an organism spends the mass it has.
  *
- * Ported from `arcade-cabinet/ebb-and-bloom`'s PEER_REVIEWED_LAWS.md, whose
- * governing rule is worth restating because it is what makes this game's
- * causality real rather than plausible:
+ * Ported from a peer-reviewed-laws reference used across sibling
+ * simulation games, whose governing rule is worth restating because it is
+ * what makes this package's causality real rather than plausible:
  *
  *   "If it exists in a peer-reviewed journal, we implement it EXACTLY.
  *    No approximations. No game balance tweaks."
@@ -66,11 +66,7 @@ export function vonBertalanffyMass(
  * This is the real content of "reproductive strategy": not which container the
  * offspring arrives in, but how the parent divides a fixed budget.
  */
-export function clutchSize(
-	parentMass: number,
-	offspringMass: number,
-	rSelected = false,
-): number {
+export function clutchSize(parentMass: number, offspringMass: number, rSelected = false): number {
 	nonNegative("clutchSize", "parentMass", parentMass);
 	nonNegative("clutchSize", "offspringMass", offspringMass);
 
@@ -137,10 +133,7 @@ export function expectedBrainMass(bodyMassKg: number): number {
  * EQ ~1 is average for a mammal; 4-5 is elephant or dolphin; ~7 is human. It
  * is the honest way to say "how clever is it" without inventing a stat.
  */
-export function encephalizationQuotient(
-	brainMassKg: number,
-	bodyMassKg: number,
-): number {
+export function encephalizationQuotient(brainMassKg: number, bodyMassKg: number): number {
 	nonNegative("encephalizationQuotient", "brainMassKg", brainMassKg);
 	nonNegative("encephalizationQuotient", "bodyMassKg", bodyMassKg);
 

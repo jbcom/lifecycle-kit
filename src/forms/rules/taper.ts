@@ -1,5 +1,12 @@
 import type { Path, Vec2 } from "../path.js";
-import { finite, positive } from "../validate.js";
+import {
+	params as checkParams,
+	count,
+	nonNegative,
+	partName,
+	positive,
+	unitRange,
+} from "../validate.js";
 
 /**
  * A body outline that narrows (or widens) along its axis.
@@ -46,16 +53,18 @@ export interface TaperParams {
  * lets `bulgeAt` actually read as a bulge instead of a corner.
  */
 export function taper(params: TaperParams): Path {
+	checkParams("taper", params);
 	// Validate at the boundary: a bad width here becomes a null coordinate,
 	// then NaN in a downstream package, then an erased creature. See
 	// ../validate.ts.
-	finite("taper", "from", params.from);
-	finite("taper", "to", params.to);
-	finite("taper", "bulgeAt", params.bulgeAt);
-	positive("taper", "length", params.length);
+	const from = nonNegative("taper", "from", params.from);
+	const to = nonNegative("taper", "to", params.to);
+	const bulgeAt = unitRange("taper", "bulgeAt", params.bulgeAt);
+	const length = positive("taper", "length", params.length);
+	const part = params.part === undefined ? undefined : partName("taper", "part", params.part);
+	const index = count("taper", "index", params.index ?? 0);
 
-	const { from, to, bulgeAt, length } = params;
-	const bulgeX = clamp01(bulgeAt) * length;
+	const bulgeX = bulgeAt * length;
 	// The peak half-width is the wider endpoint, pushed out a little further
 	// so the midpoint genuinely bulges rather than just interpolating.
 	const peak = Math.max(from, to) * 1.15 + Math.min(from, to) * 0.15;
@@ -96,15 +105,9 @@ export function taper(params: TaperParams): Path {
 					},
 				],
 				closed: true,
-				...(params.part
-					? { tag: { part: params.part, index: params.index ?? 0 } }
-					: {}),
+				...(part ? { tag: { part, index } } : {}),
 			},
 		],
 	};
 	return path;
-}
-
-function clamp01(v: number): number {
-	return Math.max(0, Math.min(1, v));
 }

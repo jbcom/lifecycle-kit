@@ -5,7 +5,7 @@ import { composition } from "./validate.js";
 /**
  * What a body is built out of.
  *
- * Ported from `ebb-and-bloom`'s `MolecularSynthesis` (engine/procedural).
+ * Adapted from an earlier procedural-creature molecular synthesis model.
  * Its principle is exactly right and entirely renderer-agnostic:
  *
  *   protein → muscle bulk
@@ -89,6 +89,8 @@ export const BIOMOLECULES: Record<string, Biomolecule> = {
 
 export type BiomoleculeId = keyof typeof BIOMOLECULES;
 
+const BIOMOLECULE_IDS = Object.keys(BIOMOLECULES) as BiomoleculeId[];
+
 /** A body's makeup, as fractions summing to roughly 1. */
 export type Composition = Record<BiomoleculeId, number>;
 
@@ -108,10 +110,10 @@ export function normalise(raw: Composition): Composition {
 	// by name, before the division.
 	composition("normalise", "raw", raw);
 
-	const total = Object.values(raw).reduce((a, b) => a + b, 0);
+	const total = BIOMOLECULE_IDS.reduce((sum, id) => sum + (raw[id] ?? 0), 0);
 	if (total <= 0) return { ...EMPTY_COMPOSITION, sugar: 1 };
 	const out = { ...EMPTY_COMPOSITION };
-	for (const k of Object.keys(raw) as BiomoleculeId[]) {
+	for (const k of BIOMOLECULE_IDS) {
 		out[k] = (raw[k] ?? 0) / total;
 	}
 	return out;
@@ -156,8 +158,9 @@ export function growthCost(id: BiomoleculeId, backbone: Backbone = "C"): number 
 
 /** The dominant tissue, which is what a creature reads as at a glance. */
 export function dominantTissue(c: Composition): BiomoleculeId {
+	composition("dominantTissue", "c", c);
 	let best: BiomoleculeId = "sugar";
-	for (const k of Object.keys(c) as BiomoleculeId[]) {
+	for (const k of BIOMOLECULE_IDS) {
 		if ((c[k] ?? 0) > (c[best] ?? 0)) best = k;
 	}
 	return best;
@@ -175,7 +178,7 @@ export function dominantTissue(c: Composition): BiomoleculeId {
  * different because it IS different, not because anything recoloured it.
  */
 export function compositionColor(c: Composition, backbone: Backbone = "C"): string {
-	// The origin of the "#NaNNaNNaN" fill that `lifecycle-forms`'s validate.ts
+	// The origin of the "#NaNNaNNaN" fill documented by the forms stage's validator.
 	// documents. The loop below skips a tissue with `if (frac <= 0) continue`,
 	// and every comparison against NaN is false — so `NaN <= 0` is false, the
 	// guard waves it through, and it reaches the weighted sum. A filter
@@ -186,7 +189,7 @@ export function compositionColor(c: Composition, backbone: Backbone = "C"): stri
 	let g = 0;
 	let b = 0;
 	let weight = 0;
-	for (const id of Object.keys(c) as BiomoleculeId[]) {
+	for (const id of BIOMOLECULE_IDS) {
 		const frac = c[id] ?? 0;
 		if (frac <= 0) continue;
 		const formula = asBackbone(id, backbone);

@@ -1,7 +1,7 @@
 /**
  * 2.5D assembly, lighting and depth over composed forms.
  *
- * `lifecycle-forms` emits tagged outlines and says nothing about depth or
+ * The forms stage emits tagged outlines and says nothing about depth or
  * colour. This package places those outlines in depth bands, lights them from
  * a direction, and shades their fills — which is what makes a creature read as
  * grown rather than as parts stacked in a fixed order.

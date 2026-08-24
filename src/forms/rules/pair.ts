@@ -1,11 +1,5 @@
 import { concatPaths, type Path, tagPath, type Vec2 } from "../path.js";
-import {
-	params as checkParams,
-	path as checkPath,
-	count,
-	partName,
-	vec2,
-} from "../validate.js";
+import { params as checkParams, path as checkPath, count, partName, vec2 } from "../validate.js";
 import { mirrorY, translate } from "./transform.js";
 
 export interface PairParams {
@@ -66,11 +60,7 @@ export function pair(unit: Path, params: PairParams): Path {
 	const siteIndex = count("pair", "siteIndex", params.siteIndex ?? 0);
 	const right = tagPath(translate(unit, attachment), part, siteIndex * 2);
 	const mirroredAttachment: Vec2 = { x: attachment.x, y: -attachment.y };
-	const left = tagPath(
-		translate(mirrorY(unit), mirroredAttachment),
-		part,
-		siteIndex * 2 + 1,
-	);
+	const left = tagPath(translate(mirrorY(unit), mirroredAttachment), part, siteIndex * 2 + 1);
 	// Right emitted first, matching repeat's low-index-first convention —
 	// draw order is depth order, and there is no a-priori reason for one side
 	// to occlude the other, so the convention just needs to be consistent.

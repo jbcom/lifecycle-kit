@@ -79,12 +79,8 @@ describe("no law returns a non-finite number", () => {
 
 describe("multi-argument laws check every argument", () => {
 	it("clutchSize rejects a negative parent or offspring mass", () => {
-		expect(() => clutchSize(-1, 0.5)).toThrow(
-			/clutchSize: parentMass cannot be negative/,
-		);
-		expect(() => clutchSize(10, -0.5)).toThrow(
-			/clutchSize: offspringMass cannot be negative/,
-		);
+		expect(() => clutchSize(-1, 0.5)).toThrow(/clutchSize: parentMass cannot be negative/);
+		expect(() => clutchSize(10, -0.5)).toThrow(/clutchSize: offspringMass cannot be negative/);
 		expect(() => clutchSize(Number.NaN, 0.5)).toThrow(/parentMass/);
 	});
 
@@ -115,6 +111,40 @@ describe("multi-argument laws check every argument", () => {
 	});
 });
 
+/**
+ * `describe(value)` — the helper behind every "got ..." clause above — has
+ * four branches, and every existing test only ever hit `undefined` (an
+ * omitted argument) or a plain number (NaN). A caller who passes an array or
+ * a plain object instead of a number is a different, common mistake — e.g.
+ * threading a whole options bag where a single mass was expected — and it
+ * gets its own, more specific wording. Neither branch had ever been reached.
+ */
+describe("bad-argument messages name the actual shape that was passed", () => {
+	it("names an array distinctly from a bare number", () => {
+		expect(() => expectedBrainMass([1, 2] as unknown as number)).toThrow(
+			/must be a finite number, got an array/,
+		);
+	});
+
+	it("names an object's own keys rather than just saying 'object'", () => {
+		expect(() => expectedBrainMass({ kg: 50 } as unknown as number)).toThrow(
+			/must be a finite number, got an object \(kg\)/,
+		);
+	});
+
+	/**
+	 * `typeof null === "object"`, so `describe`'s null check has to come
+	 * BEFORE its object check or `null` would print as an object with no
+	 * keys — a strictly worse message for what is usually the most common
+	 * bad-argument case of all: an unset field on a real record.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() => expectedBrainMass(null as unknown as number)).toThrow(
+			/must be a finite number, got null/,
+		);
+	});
+});
+
 describe("the published values still hold", () => {
 	/**
 	 * Guards must not have moved any answer. These re-pin the citations the
@@ -131,8 +161,6 @@ describe("the published values still hold", () => {
 	});
 
 	it("still makes swimming cheaper than running", () => {
-		expect(costOfTransport.swimming(10)).toBeLessThan(
-			costOfTransport.running(10),
-		);
+		expect(costOfTransport.swimming(10)).toBeLessThan(costOfTransport.running(10));
 	});
 });

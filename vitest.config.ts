@@ -5,7 +5,14 @@ export default defineConfig({
 		environment: "node",
 		coverage: {
 			provider: "v8",
+			include: ["src/**/*.ts"],
 			reporter: ["text", "json-summary"],
+			thresholds: {
+				statements: 99,
+				branches: 95,
+				functions: 100,
+				lines: 99,
+			},
 		},
 	},
 });

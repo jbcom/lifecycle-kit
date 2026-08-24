@@ -42,9 +42,7 @@ function subPathData(shape: SubPath): string {
 		if (seg.kind === "line") {
 			parts.push(`L ${num(seg.to.x)} ${num(seg.to.y)}`);
 		} else if (seg.kind === "quadratic") {
-			parts.push(
-				`Q ${num(seg.control.x)} ${num(seg.control.y)} ${num(seg.to.x)} ${num(seg.to.y)}`,
-			);
+			parts.push(`Q ${num(seg.control.x)} ${num(seg.control.y)} ${num(seg.to.x)} ${num(seg.to.y)}`);
 		} else {
 			parts.push(
 				`C ${num(seg.control1.x)} ${num(seg.control1.y)} ${num(seg.control2.x)} ${num(seg.control2.y)} ${num(seg.to.x)} ${num(seg.to.y)}`,

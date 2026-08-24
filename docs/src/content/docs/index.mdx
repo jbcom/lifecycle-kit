@@ -1,0 +1,60 @@
+---
+title: Lifecycle Kit
+template: splash
+description: A deterministic TypeScript stage stack for growing procedural creatures from causes rather than catalogs.
+hero:
+  title: Lifecycle Kit
+  tagline: Grow procedural creatures from causes, not catalogs.
+  image:
+    alt: Elemental chemistry flowing through tissue into a segmented procedural organism
+    file: ../../assets/lifecycle-kit-hero.webp
+  actions:
+    - text: Get started
+      link: guides/get-started/
+      icon: right-arrow
+    - text: API reference
+      link: reference/
+      icon: document
+      variant: minimal
+    - text: View on GitHub
+      link: https://github.com/jbcom/lifecycle-kit
+      icon: external
+      variant: minimal
+      attrs:
+        rel: me
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Lifecycle Kit keeps the causal chain intact: real elemental properties and
+biomolecule formulas decide what can grow, cited allometric laws replace
+hand-tuned size and life-history guesses, a small vocabulary of continuous
+vector rules creates body plans, and diet, exposure, tissue, depth, and light
+remain visible in the final palette.
+
+Use one stage independently or carry the same creature through the full
+pipeline. The package has no runtime dependencies, browser globals, hidden
+randomness, or rendering-engine lock-in.
+
+<CardGrid>
+	<Card title="chem" icon="puzzle">
+		Elements, bonding, and tissue composition — what a world's chemistry lets
+		a creature be made of.
+	</Card>
+	<Card title="bio-laws" icon="rocket">
+		Cited biological scaling laws: brain mass, encephalization, group size,
+		and more, from real allometric regressions.
+	</Card>
+	<Card title="forms" icon="magnifier">
+		A small vocabulary of compositional vector rules — taper, repeat,
+		branch, pair, enclose — that emit body plans.
+	</Card>
+	<Card title="pigment" icon="star">
+		Diet, exposure, and tissue history become a renderer-neutral palette,
+		with self-shadowing baked in.
+	</Card>
+	<Card title="assemblage" icon="approve-check">
+		Compose parts, palette, and light into 2.5D renderer-neutral visual
+		data for SVG or Pixi.
+	</Card>
+</CardGrid>

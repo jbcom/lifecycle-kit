@@ -6,6 +6,7 @@ import {
 	growthCost,
 	normalise,
 } from "./biomolecules.js";
+import { backbone as checkBackbone, nonNegative, object, quantities } from "./validate.js";
 
 /**
  * You are what you eat.
@@ -30,8 +31,14 @@ export interface MetabolicState {
 	reserve: number;
 }
 
+const NEWBORN_TISSUE: Readonly<Composition> = Object.freeze({
+	...EMPTY_COMPOSITION,
+	sugar: 2,
+	protein: 1,
+});
+
 export const NEWBORN: MetabolicState = {
-	tissue: { ...EMPTY_COMPOSITION, sugar: 2, protein: 1 },
+	tissue: { ...NEWBORN_TISSUE },
 	reserve: 0,
 };
 
@@ -143,15 +150,31 @@ export function metabolise(
 	activity: ActivityDemand,
 	backbone: Backbone = "C",
 ): MetabolicState {
-	const tissue = { ...state.tissue };
-	const demand = demandProfile(activity, backbone);
-	let reserve = state.reserve;
+	const current = canonicalState(state, "metabolise", false);
+	object("metabolise", "food", food);
+	quantities("metabolise", "food", food as Record<string, number>);
+	for (const id of Object.keys(food)) {
+		if (!Object.hasOwn(EMPTY_COMPOSITION, id)) {
+			throw new TypeError(`metabolise: food.${id} is not a known tissue`);
+		}
+	}
+	object("metabolise", "activity", activity);
+	const checkedActivity: ActivityDemand = {
+		exertion: nonNegative("metabolise", "activity.exertion", activity.exertion),
+		growth: nonNegative("metabolise", "activity.growth", activity.growth),
+		rest: nonNegative("metabolise", "activity.rest", activity.rest),
+	};
+	const checkedBackbone = checkBackbone("metabolise", "backbone", backbone);
 
-	for (const id of Object.keys(tissue) as BiomoleculeId[]) {
+	const tissue = { ...current.tissue };
+	const demand = demandProfile(checkedActivity, checkedBackbone);
+	let reserve = current.reserve;
+
+	for (const id of TISSUE_IDS) {
 		const supplied = food[id] ?? 0;
 		const wanted = demand[id] ?? 0;
 		// Building needs both the material and a reason to build it.
-		const built = Math.min(supplied, wanted) / (1 + growthCost(id, backbone) * 0.25);
+		const built = Math.min(supplied, wanted) / (1 + growthCost(id, checkedBackbone) * 0.25);
 		tissue[id] = (tissue[id] ?? 0) + built;
 		reserve += supplied - built;
 	}
@@ -162,7 +185,7 @@ export function metabolise(
 	// mattering, which would defeat the whole loop.
 	if (reserve > 0) {
 		const kept = reserve * 0.12;
-		const toLipid = activity.rest > 0 ? kept * 0.7 : 0;
+		const toLipid = checkedActivity.rest > 0 ? kept * 0.7 : 0;
 		tissue.lipid = (tissue.lipid ?? 0) + toLipid;
 		tissue.sugar = (tissue.sugar ?? 0) + kept - toLipid;
 		reserve = 0;
@@ -181,15 +204,15 @@ export function metabolise(
 	// Reserve is consumed inside the same call that receives it, so a rest tick
 	// arriving later found an empty body and banked nothing — the consuming
 	// game had sleep wired up and doing precisely nothing until this changed.
-	if (activity.rest > 0) {
-		tissue.lipid = (tissue.lipid ?? 0) + spent * 0.5 * activity.rest;
+	if (checkedActivity.rest > 0) {
+		tissue.lipid = (tissue.lipid ?? 0) + spent * 0.5 * checkedActivity.rest;
 	}
 
 	// Exertion burns stores. The other half of the same fact: a worked body
 	// spends its fat where a rested one lays it down, so what a creature is
 	// made of records how it was kept and not only what it was fed.
-	if (activity.exertion > 0) {
-		const burned = (tissue.lipid ?? 0) * 0.12 * activity.exertion;
+	if (checkedActivity.exertion > 0) {
+		const burned = (tissue.lipid ?? 0) * 0.12 * checkedActivity.exertion;
 		tissue.lipid = Math.max(0, (tissue.lipid ?? 0) - burned);
 	}
 
@@ -198,19 +221,19 @@ export function metabolise(
 
 /** The body's current makeup, as fractions. */
 export function composition(state: MetabolicState): Composition {
-	return normalise(state.tissue);
+	return normalise(canonicalState(state, "composition", false).tissue);
 }
 
 /** Total tissue built, which is what "weight" actually measures. */
 export function bodyMass(state: MetabolicState): number {
-	return Object.values(state.tissue).reduce((a, b) => a + b, 0);
+	return Object.values(canonicalState(state, "bodyMass", false).tissue).reduce((a, b) => a + b, 0);
 }
 
 /**
  * Tissue units per kilogram.
  *
  * bodyMass() counts tissue units, which are arbitrary — a newborn is 3 and a
- * grown pet is a few dozen. The peer-reviewed scaling laws in src/sim/laws
+ * grown pet is a few dozen. The peer-reviewed scaling laws in src/bio-laws
  * are all calibrated in KILOGRAMS, and feeding them raw tissue units would
  * produce numbers that typecheck and mean nothing: Damuth's law on a "mass"
  * of 8 would report the population density of an eight-kilogram animal.
@@ -222,6 +245,45 @@ export function bodyMass(state: MetabolicState): number {
  */
 export const KG_PER_TISSUE_UNIT = 0.05;
 
+const TISSUE_IDS = Object.keys(EMPTY_COMPOSITION) as BiomoleculeId[];
+
+/** A new object every time: callers may evolve a loaded state in place. */
+function newbornState(): MetabolicState {
+	return { tissue: { ...NEWBORN_TISSUE }, reserve: 0 };
+}
+
+/**
+ * Turn unknown persisted data into the complete schema calculations expect.
+ *
+ * Missing tissue keys are a supported legacy shape and become zero. Unknown
+ * numeric keys are ignored for forward compatibility. A record with no known
+ * tissue at all is not a metabolic state, even if it happens to be an object.
+ */
+function canonicalState(value: unknown, fn: string, allowMissingReserve: boolean): MetabolicState {
+	const state = object(fn, "state", value as MetabolicState | undefined);
+	const tissue = object(fn, "state.tissue", (state as { tissue?: Record<string, number> }).tissue);
+	quantities(fn, "state.tissue", tissue);
+
+	const canonical = { ...EMPTY_COMPOSITION };
+	let recognised = 0;
+	for (const id of TISSUE_IDS) {
+		if (!Object.hasOwn(tissue, id)) continue;
+		canonical[id] = tissue[id] as number;
+		recognised += 1;
+	}
+	if (recognised === 0) {
+		throw new TypeError(`${fn}: state.tissue must include at least one known tissue`);
+	}
+
+	const rawReserve = (state as { reserve?: unknown }).reserve;
+	const reserve =
+		allowMissingReserve && rawReserve === undefined
+			? 0
+			: nonNegative(fn, "state.reserve", rawReserve);
+
+	return { tissue: canonical, reserve };
+}
+
 /**
  * Read a metabolic state that was persisted as JSON.
  *
@@ -232,13 +294,23 @@ export const KG_PER_TISSUE_UNIT = 0.05;
  * to answer "how big is it".
  */
 export function readMetabolicState(raw: string | undefined): MetabolicState {
-	if (!raw) return NEWBORN;
+	if (!raw) return newbornState();
 	try {
-		const parsed = JSON.parse(raw) as MetabolicState;
-		return parsed?.tissue ? parsed : NEWBORN;
+		return canonicalState(JSON.parse(raw) as unknown, "readMetabolicState", true);
 	} catch {
-		return NEWBORN;
+		return newbornState();
 	}
+}
+
+/**
+ * Serialise a validated, canonical metabolic state for persistence.
+ *
+ * Reads are forgiving because storage can be old or corrupt. Writes reject a
+ * bad state instead: persisting a NaN as JSON `null` would make the corruption
+ * durable and erase the argument name that caused it.
+ */
+export function writeMetabolicState(state: MetabolicState): string {
+	return JSON.stringify(canonicalState(state, "writeMetabolicState", false));
 }
 
 /** Body mass in kilograms, for the scaling laws. */

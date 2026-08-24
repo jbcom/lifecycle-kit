@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { compositionColor, dominantTissue, growthCost } from "../biomolecules";
-import { bodyMass, composition, type MetabolicState, metabolise, NEWBORN } from "../metabolism";
+import { compositionColor, dominantTissue, EMPTY_COMPOSITION, growthCost } from "../biomolecules";
+import {
+	bodyMass,
+	bodyMassKg,
+	composition,
+	KG_PER_TISSUE_UNIT,
+	type MetabolicState,
+	metabolise,
+	NEWBORN,
+	readMetabolicState,
+	writeMetabolicState,
+} from "../metabolism";
 
 const liveOn = (
 	ticks: number,
@@ -105,6 +115,88 @@ describe("metabolism", () => {
 		const blob = composition(live(60, { sugar: 1 }, IDLE));
 		expect(compositionColor(bug)).toMatch(/^#[0-9a-f]{6}$/);
 		expect(compositionColor(bug)).not.toBe(compositionColor(blob));
+	});
+
+	/**
+	 * `MetabolicState.tissue` is typed as a full `Composition`, but the whole
+	 * point of `readMetabolicState`'s documented fallback behaviour is that a
+	 * save can be malformed — hand-edited, from an older schema, corrupted in
+	 * transit. `metabolise` is the function every one of those states
+	 * eventually reaches, and every `tissue[id] ?? 0` inside it exists
+	 * specifically for a tissue key missing from that state. Every other test
+	 * in this file starts from `NEWBORN` or a state built by `live()`, both of
+	 * which always have every key, so this had never actually run.
+	 */
+	it("tolerates a state whose tissue is missing keys, rather than throwing", () => {
+		const partial = {
+			tissue: { protein: 1 } as unknown as MetabolicState["tissue"],
+			reserve: 0,
+		};
+		expect(() =>
+			metabolise(partial, { protein: 1 }, { exertion: 1, growth: 1, rest: 0 }),
+		).not.toThrow();
+		const next = metabolise(partial, { protein: 1 }, { exertion: 1, growth: 1, rest: 0 });
+		expect(Object.values(next.tissue).every(Number.isFinite)).toBe(true);
+	});
+
+	/** The rest/exertion branches below take the same `?? 0` shape. */
+	it("tolerates a partial tissue through rest and exertion too", () => {
+		const partial = {
+			tissue: { sugar: 1 } as unknown as MetabolicState["tissue"],
+			reserve: 5,
+		};
+		const rested = metabolise(partial, {}, { exertion: 0, growth: 0, rest: 1 });
+		expect(Object.values(rested.tissue).every(Number.isFinite)).toBe(true);
+
+		// Exertion's `tissue.lipid ?? 0` fallback specifically: a tissue with
+		// no lipid key at all, burned from by an exerting activity.
+		const worked = metabolise(
+			{
+				tissue: { protein: 1 } as unknown as MetabolicState["tissue"],
+				reserve: 0,
+			},
+			{},
+			{ exertion: 1, growth: 0, rest: 0 },
+		);
+		expect(Object.values(worked.tissue).every(Number.isFinite)).toBe(true);
+	});
+
+	it("canonicalises partial state before returning it", () => {
+		const partial = {
+			tissue: { protein: 1 } as unknown as MetabolicState["tissue"],
+			reserve: 0,
+		};
+		expect(metabolise(partial, {}, IDLE).tissue).toEqual({
+			...EMPTY_COMPOSITION,
+			protein: expect.any(Number),
+		});
+	});
+
+	it("rejects malformed direct inputs with argument-specific errors", () => {
+		expect(() =>
+			metabolise({ tissue: { ...NEWBORN.tissue, protein: Number.NaN }, reserve: 0 }, {}, IDLE),
+		).toThrow(/metabolise: state\.tissue\.protein must be a finite number/);
+		expect(() => metabolise(NEWBORN, { mystery: 1 } as never, IDLE)).toThrow(
+			/metabolise: food\.mystery is not a known tissue/,
+		);
+		expect(() => metabolise(NEWBORN, {}, { ...IDLE, exertion: -1 })).toThrow(
+			/metabolise: activity\.exertion cannot be negative/,
+		);
+		expect(() => metabolise(NEWBORN, {}, undefined as never)).toThrow(
+			/metabolise: activity must be an object/,
+		);
+		expect(() => metabolise(NEWBORN, {}, IDLE, "Fe" as never)).toThrow(
+			/metabolise: backbone must be C, Si, or S/,
+		);
+	});
+
+	it("validates state in composition and mass helpers too", () => {
+		const invalid = {
+			tissue: { ...NEWBORN.tissue, lipid: Number.POSITIVE_INFINITY },
+			reserve: 0,
+		};
+		expect(() => composition(invalid)).toThrow(/composition: state\.tissue\.lipid/);
+		expect(() => bodyMass(invalid)).toThrow(/bodyMass: state\.tissue\.lipid/);
 	});
 });
 
@@ -217,5 +309,126 @@ describe("rest and exertion", () => {
 		let s = { tissue: { ...NEWBORN.tissue, lipid: 0.001 }, reserve: 0 };
 		for (let i = 0; i < 200; i++) s = metabolise(s, {}, WORK);
 		expect(s.tissue.lipid).toBeGreaterThanOrEqual(0);
+	});
+});
+
+/**
+ * `readMetabolicState` is the load side of a save/load round trip: koota
+ * traits hold flat values, so a `MetabolicState` is persisted as a JSON
+ * string and read back through here. Nothing in this suite had ever called
+ * it — every other test constructs a `MetabolicState` in memory and never
+ * exercises the parse path at all, including its two documented fallbacks:
+ * an absent record and one that fails to parse.
+ */
+describe("readMetabolicState", () => {
+	it("round-trips a real, previously-saved state", () => {
+		const saved = JSON.stringify(live(10, { protein: 1 }, { exertion: 1, growth: 0.3, rest: 0 }));
+		expect(readMetabolicState(saved)).toEqual(JSON.parse(saved) as MetabolicState);
+	});
+
+	it("falls back to a newborn when there is nothing to load", () => {
+		expect(readMetabolicState(undefined)).toEqual(NEWBORN);
+		expect(readMetabolicState("")).toEqual(NEWBORN);
+	});
+
+	/**
+	 * The documented resilience: an old or hand-edited save must load into the
+	 * new system rather than bricking the game. `bricking` here specifically
+	 * means throwing out of a function every caller assumes cannot fail.
+	 */
+	it("falls back to a newborn for JSON that will not parse, rather than throwing", () => {
+		expect(() => readMetabolicState("{not valid json")).not.toThrow();
+		expect(readMetabolicState("{not valid json")).toEqual(NEWBORN);
+	});
+
+	it("falls back to a newborn for well-formed JSON missing the tissue field", () => {
+		expect(readMetabolicState(JSON.stringify({ reserve: 5 }))).toEqual(NEWBORN);
+	});
+
+	it("migrates a partial legacy tissue record and missing reserve into the complete schema", () => {
+		expect(readMetabolicState(JSON.stringify({ tissue: { protein: 4 } }))).toEqual({
+			tissue: { ...EMPTY_COMPOSITION, protein: 4 },
+			reserve: 0,
+		});
+	});
+
+	it.each([
+		null,
+		[],
+		{},
+		{ tissue: [] },
+		{ tissue: {} },
+		{ tissue: { protein: null }, reserve: 0 },
+		{ tissue: { protein: -1 }, reserve: 0 },
+		{ tissue: { futureTissue: 1 }, reserve: 0 },
+		{ tissue: { protein: 1 }, reserve: null },
+		{ tissue: { protein: 1 }, reserve: -1 },
+	])("falls back for well-formed but invalid persisted data: %j", (saved) => {
+		expect(readMetabolicState(JSON.stringify(saved))).toEqual(NEWBORN);
+	});
+
+	it("returns a fresh fallback instead of exposing the exported newborn object's tissue", () => {
+		const first = readMetabolicState(undefined);
+		first.tissue.sugar = 999;
+		first.reserve = 999;
+
+		expect(readMetabolicState(undefined)).toEqual(NEWBORN);
+		expect(NEWBORN.tissue.sugar).toBe(2);
+		expect(NEWBORN.reserve).toBe(0);
+	});
+});
+
+describe("writeMetabolicState", () => {
+	it("provides a validated round trip for a real evolved state", () => {
+		const state = live(10, { protein: 1 }, { exertion: 1, growth: 0.3, rest: 0 });
+		expect(readMetabolicState(writeMetabolicState(state))).toEqual(state);
+	});
+
+	it("writes a partial state as a canonical record with every tissue key", () => {
+		const partial = {
+			tissue: { protein: 2 } as unknown as MetabolicState["tissue"],
+			reserve: 1,
+		};
+		expect(JSON.parse(writeMetabolicState(partial))).toEqual({
+			tissue: { ...EMPTY_COMPOSITION, protein: 2 },
+			reserve: 1,
+		});
+	});
+
+	it("rejects invalid state before JSON can turn its NaN into a durable null", () => {
+		expect(() =>
+			writeMetabolicState({
+				tissue: { ...NEWBORN.tissue, protein: Number.NaN },
+				reserve: 0,
+			}),
+		).toThrow(/writeMetabolicState: state\.tissue\.protein must be a finite number/);
+		expect(() => writeMetabolicState({ tissue: NEWBORN.tissue, reserve: -1 })).toThrow(
+			/writeMetabolicState: state\.reserve cannot be negative/,
+		);
+	});
+});
+
+/**
+ * `bodyMassKg` is the seam this package hands to `lifecycle-bio-laws` — every
+ * scaling law downstream (encephalization, gut retention, cost of transport)
+ * reads a body through this conversion. It was never called from a test.
+ */
+describe("bodyMassKg", () => {
+	it("is bodyMass scaled by the documented per-tissue-unit constant", () => {
+		const s = live(20, { protein: 1, mineral: 0.4 }, { exertion: 1, growth: 0.3, rest: 0 });
+		expect(bodyMassKg(s)).toBeCloseTo(bodyMass(s) * KG_PER_TISSUE_UNIT, 12);
+	});
+
+	it("is zero for a state with no tissue", () => {
+		expect(bodyMassKg({ tissue: { ...NEWBORN.tissue }, reserve: 0 })).toBeGreaterThanOrEqual(0);
+	});
+
+	it("stays finite across a long life", () => {
+		const s = live(
+			300,
+			{ protein: 1, lipid: 0.5, mineral: 0.2 },
+			{ exertion: 1, growth: 0, rest: 0 },
+		);
+		expect(Number.isFinite(bodyMassKg(s))).toBe(true);
 	});
 });

@@ -92,6 +92,12 @@ describe("normalise cannot be destroyed by one bad tissue", () => {
 		);
 	});
 
+	it("rejects an array even though JavaScript reports it as an object", () => {
+		expect(() => normalise([] as unknown as typeof EMPTY_COMPOSITION)).toThrow(
+			/normalise: raw must be an object, got an array/,
+		);
+	});
+
 	/** The documented all-zero behaviour is untouched. */
 	it("still returns all-sugar for an empty composition", () => {
 		expect(normalise({ ...EMPTY_COMPOSITION })).toEqual({
@@ -110,6 +116,48 @@ describe("normalise cannot be destroyed by one bad tissue", () => {
 		const total = Object.values(out).reduce((a, b) => a + b, 0);
 		expect(total).toBeCloseTo(1, 12);
 		expect(Object.values(out).every(Number.isFinite)).toBe(true);
+	});
+});
+
+/**
+ * The "got ..." clause on every message above has a branch for an array and
+ * a branch for a plain object, distinct from "number" and "undefined" — and
+ * every existing test only ever passed a number or omitted the argument.
+ * Passing a whole options-shaped object where a single fraction was expected
+ * is a realistic caller mistake, and it deserves the more specific wording.
+ */
+describe("bad-argument messages name arrays and objects specifically", () => {
+	it("names an array rather than calling it 'object'", () => {
+		expect(() =>
+			compositionColor({
+				...EMPTY_COMPOSITION,
+				protein: [1] as unknown as number,
+			}),
+		).toThrow(/must be a finite number, got an array/);
+	});
+
+	it("names an object's own keys", () => {
+		expect(() =>
+			compositionColor({
+				...EMPTY_COMPOSITION,
+				protein: { value: 1 } as unknown as number,
+			}),
+		).toThrow(/must be a finite number, got an object \(value\)/);
+	});
+
+	/**
+	 * `typeof null === "object"`, so `describe`'s null check has to run
+	 * before its object check or `null` would print as an object with no
+	 * keys — a strictly worse message for the single most common bad-argument
+	 * case: an unset field on a real record.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() =>
+			compositionColor({
+				...EMPTY_COMPOSITION,
+				protein: null as unknown as number,
+			}),
+		).toThrow(/must be a finite number, got null/);
 	});
 });
 

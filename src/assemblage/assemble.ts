@@ -5,7 +5,7 @@ import { type Caster, occlusion, shadowed } from "./shadow.js";
 /**
  * Depth, light and shading over composed forms.
  *
- * `lifecycle-forms` emits a flat list of outlines, each tagged with the part
+ * The forms stage emits a flat list of outlines, each tagged with the part
  * it belongs to. It says nothing about depth or colour, deliberately — a
  * `taper` rule that picked a fill would be an art director, and a rule that
  * assigned depth would be guessing at anatomy it does not model.

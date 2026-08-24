@@ -42,9 +42,13 @@ export const DEFAULT_LIGHT: Light = {
  * "#NaNNaNNaN", which is the exact failure guarded in 0.1.1 arriving by a
  * different route.
  */
+function finiteOr0(n: number | undefined): number {
+	return typeof n === "number" && Number.isFinite(n) ? n : 0;
+}
+
 export function normalise(direction: Vec2 | undefined): Vec2 {
-	const dx = Number.isFinite(direction?.x) ? (direction?.x ?? 0) : 0;
-	const dy = Number.isFinite(direction?.y) ? (direction?.y ?? 0) : 0;
+	const dx = finiteOr0(direction?.x);
+	const dy = finiteOr0(direction?.y);
 	const len = Math.hypot(dx, dy);
 	if (!(len > 0)) return normalise(DEFAULT_LIGHT.direction);
 	return { x: dx / len, y: dy / len };
@@ -82,9 +86,7 @@ export function litness(point: Vec2, light: Light): number {
 	// far from the origin shades smoothly rather than saturating abruptly.
 	const exposure = (Math.tanh(facing * 2) + 1) / 2;
 
-	const ambient = Number.isFinite(light.ambient)
-		? Math.max(0, Math.min(1, light.ambient))
-		: 0;
+	const ambient = Number.isFinite(light.ambient) ? Math.max(0, Math.min(1, light.ambient)) : 0;
 
 	return ambient + (1 - ambient) * exposure;
 }
@@ -114,7 +116,7 @@ export function litness(point: Vec2, light: Light): number {
  * the lower one. `LIT_REACH` is what keeps a fully lit surface from blowing
  * out to pure white: a creature is a coloured thing in light, not a lamp, and
  * washing its hue away at the highlight loses the pigment that
- * `lifecycle-pigment` went to the trouble of deriving.
+ * the pigment stage went to the trouble of deriving.
  */
 
 /**
@@ -132,7 +134,7 @@ const SHADOW_FLOOR = 0.35;
  * Paired with `SHADOW_FLOOR` so the two halves of the ramp have comparable
  * slope; the assay pins them within a factor of two of each other. Not 1:
  * a creature is a coloured thing in light, not a lamp, and a highlight that
- * reaches pure white throws away the pigment `lifecycle-pigment` derived.
+ * reaches pure white throws away the pigment the pigment stage derived.
  */
 const LIT_REACH = 0.75;
 
@@ -144,8 +146,8 @@ export function shade(hex: string, light: number): string {
 	// below turned any unparseable string into black and returned it as a
 	// confident, real-looking colour. `shade("nothex", 0.5)` was "#00000e".
 	//
-	// Upstream now refuses to emit a bad colour (see lifecycle-pigment and
-	// lifecycle-chem), so accepting one here would only hide a caller that
+	// Upstream now refuses to emit a bad colour (see the pigment and chem
+	// stages), so accepting one here would only hide a caller that
 	// bypassed them.
 	if (typeof hex !== "string" || !/^#?[0-9a-fA-F]{6}$/.test(hex)) {
 		throw new TypeError(

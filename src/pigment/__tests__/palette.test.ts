@@ -1,5 +1,5 @@
-import { EMPTY_COMPOSITION } from "../../chem/index.js";
 import { describe, expect, it } from "vitest";
+import { EMPTY_COMPOSITION } from "../../chem/index.js";
 import { paletteRamp } from "../palette";
 import { derivePigments, type PigmentConcentrations } from "../pigments";
 
@@ -32,19 +32,13 @@ describe("paletteRamp", () => {
 	// hue. Carotenoid tints toward orange (232, 122, 26) — high red, low blue
 	// — so its "pigment" stop must read warmer than an unpigmented one.
 	it("makes a carotenoid-rich diet produce a measurably warmer hue", () => {
-		const unpigmented = paletteRamp(
-			EMPTY_COMPOSITION,
-			NO_PIGMENT,
-			NEUTRAL_SURFACE,
-		);
+		const unpigmented = paletteRamp(EMPTY_COMPOSITION, NO_PIGMENT, NEUTRAL_SURFACE);
 		const carotenoidRich = paletteRamp(
 			EMPTY_COMPOSITION,
 			{ ...NO_PIGMENT, carotenoid: 1 },
 			NEUTRAL_SURFACE,
 		);
-		expect(warmth(carotenoidRich.pigment)).toBeGreaterThan(
-			warmth(unpigmented.pigment),
-		);
+		expect(warmth(carotenoidRich.pigment)).toBeGreaterThan(warmth(unpigmented.pigment));
 	});
 
 	// REQUIRED ASSAY: melanin must track UV exposure. Round-trips through the
@@ -67,9 +61,7 @@ describe("paletteRamp", () => {
 			const { r, g, b } = hue(hex);
 			return r + g + b;
 		};
-		expect(brightness(highRamp.pigment)).toBeLessThan(
-			brightness(lowRamp.pigment),
-		);
+		expect(brightness(highRamp.pigment)).toBeLessThan(brightness(lowRamp.pigment));
 	});
 
 	it("produces a genuine ramp, not a single tint", () => {
@@ -129,9 +121,7 @@ describe("paletteRamp", () => {
 				roughness: 0.5,
 				opacity: 1,
 			}),
-		).toThrow(
-			/paletteRamp: surface\.metallic must be between 0 and 1, got 1\.5/,
-		);
+		).toThrow(/paletteRamp: surface\.metallic must be between 0 and 1, got 1\.5/);
 
 		expect(() =>
 			paletteRamp(EMPTY_COMPOSITION, NO_PIGMENT, {

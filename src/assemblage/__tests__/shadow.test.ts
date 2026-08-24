@@ -1,15 +1,8 @@
-import type { Shape } from "../../forms/index.js";
 import { describe, expect, it } from "vitest";
+import type { Shape } from "../../forms/index.js";
 import { assemble } from "../assemble.js";
 import { DEFAULT_LIGHT, shade } from "../light.js";
-import {
-	boxArea,
-	occlusion,
-	offsetBox,
-	overlapArea,
-	shadowed,
-	shapeBox,
-} from "../shadow.js";
+import { boxArea, occlusion, offsetBox, overlapArea, shadowed, shapeBox } from "../shadow.js";
 
 /**
  * Self-shadowing is what separates "grown" from "pasted".
@@ -26,13 +19,7 @@ import {
  * not change is the ordering, and that is what is asserted.
  */
 
-function ellipse(
-	part: string,
-	index: number,
-	x: number,
-	y: number,
-	r = 0.3,
-): Shape {
+function ellipse(part: string, index: number, x: number, y: number, r = 0.3): Shape {
 	return {
 		kind: "ellipse",
 		center: { x, y },
@@ -68,12 +55,31 @@ describe("shape extents", () => {
 		const box = shapeBox({
 			kind: "subpath",
 			start: { x: 0, y: 0 },
-			segments: [
-				{ kind: "quadratic", control: { x: 1, y: 1 }, to: { x: 2, y: 0 } },
-			],
+			segments: [{ kind: "quadratic", control: { x: 1, y: 1 }, to: { x: 2, y: 0 } }],
 			closed: false,
 		});
 		expect(box.max.y).toBeGreaterThanOrEqual(0.5);
+	});
+
+	// Cubic segments carry TWO control points, both outside the curve itself
+	// (unlike quadratic's one). Both must be folded into the box, or a cubic
+	// limb's shadow box silently undershoots the curve it is supposed to cover.
+	it("bounds a cubic curve by both of its control points, not just one", () => {
+		const box = shapeBox({
+			kind: "subpath",
+			start: { x: 0, y: 0 },
+			segments: [
+				{
+					kind: "cubic",
+					control1: { x: 0, y: 3 },
+					control2: { x: 2, y: -3 },
+					to: { x: 2, y: 0 },
+				},
+			],
+			closed: false,
+		});
+		expect(box.max.y).toBeGreaterThanOrEqual(3);
+		expect(box.min.y).toBeLessThanOrEqual(-3);
 	});
 
 	it("survives a shape with a null coordinate", () => {
@@ -87,6 +93,23 @@ describe("shape extents", () => {
 		expect(Number.isFinite(box.min.x)).toBe(true);
 		expect(Number.isFinite(box.min.y)).toBe(true);
 		expect(Number.isFinite(box.max.y)).toBe(true);
+	});
+
+	/**
+	 * `segments` is typed as a required array on `SubPath`, so a well-typed
+	 * caller never triggers the `shape.segments ?? []` fallback. A malformed
+	 * subpath missing it entirely — round-tripped through JSON that dropped
+	 * an empty array, say — must collapse to a point box at `start` rather
+	 * than throwing on `undefined.length`.
+	 */
+	it("bounds a subpath with no segments array as a single point at start", () => {
+		const bad = {
+			kind: "subpath",
+			start: { x: 3, y: -2 },
+			closed: false,
+		} as unknown as Shape;
+		const box = shapeBox(bad);
+		expect(box).toEqual({ min: { x: 3, y: -2 }, max: { x: 3, y: -2 } });
 	});
 });
 
@@ -216,12 +239,57 @@ describe("occlusion between parts", () => {
 			radiusY: 0.2,
 		} as unknown as Shape;
 		const body = { shape: ellipse("body", 0, 0, 0), depth: 0 };
-		const result = occlusion(
-			body,
-			[body, { shape: bad, depth: 2 }],
-			DEFAULT_LIGHT,
-		);
+		const result = occlusion(body, [body, { shape: bad, depth: 2 }], DEFAULT_LIGHT);
 		expect(Number.isFinite(result)).toBe(true);
+	});
+
+	it("reports zero coverage for a receiver whose box has no area", () => {
+		// A radius-zero ellipse has a zero-area box, so `area > 0` is false and
+		// the function must return early rather than dividing by zero.
+		const point = { shape: ellipse("body", 0, 0, 0, 0), depth: 0 };
+		const leg = { shape: ellipse("leg", 0, 0, 0), depth: 2 };
+		expect(occlusion(point, [point, leg], DEFAULT_LIGHT)).toBe(0);
+	});
+
+	/**
+	 * Every occlusion test above uses an ellipse for both receiver and
+	 * caster, so `casterFill`/`receiverFill` never took their non-ellipse
+	 * branch (a factor of 1, unlike an ellipse's pi/4 fill fraction). A limb
+	 * drawn from `taper`/`repeat` is a subpath, not an ellipse, and mixing
+	 * shape kinds is the ordinary case in a real assembled creature.
+	 */
+	it("gives a subpath caster full box coverage, unlike an ellipse's partial fill", () => {
+		const subpathCaster = {
+			shape: {
+				kind: "subpath" as const,
+				start: { x: -0.5, y: -0.5 },
+				segments: [{ kind: "line" as const, to: { x: 0.5, y: 0.5 } }],
+				closed: true,
+			},
+			depth: 2,
+		};
+		const ellipseCaster = { shape: ellipse("leg", 0, 0, 0, 0.5), depth: 2 };
+		const receiver = { shape: ellipse("body", 0, 0, 0, 1), depth: 0 };
+
+		const subpathCoverage = occlusion(receiver, [receiver, subpathCaster], DEFAULT_LIGHT);
+		const ellipseCoverage = occlusion(receiver, [receiver, ellipseCaster], DEFAULT_LIGHT);
+		expect(subpathCoverage).toBeGreaterThan(ellipseCoverage);
+	});
+
+	it("gives a subpath receiver its full box as the area to cover", () => {
+		const subpathReceiver = {
+			shape: {
+				kind: "subpath" as const,
+				start: { x: -0.5, y: -0.5 },
+				segments: [{ kind: "line" as const, to: { x: 0.5, y: 0.5 } }],
+				closed: true,
+			},
+			depth: 0,
+		};
+		const caster = { shape: ellipse("leg", 0, 0, 0, 1), depth: 2 };
+		const covered = occlusion(subpathReceiver, [subpathReceiver, caster], DEFAULT_LIGHT);
+		expect(covered).toBeGreaterThan(0);
+		expect(Number.isFinite(covered)).toBe(true);
 	});
 });
 
@@ -253,9 +321,7 @@ describe("the shading curve", () => {
 	// The specific case that shipped invisible: a body losing a third of its
 	// light must move by an amount a person can actually see.
 	it("makes a third of a light level a visible difference", () => {
-		expect(luma(shade(BASE, 0.675)) - luma(shade(BASE, 0.45))).toBeGreaterThan(
-			8,
-		);
+		expect(luma(shade(BASE, 0.675)) - luma(shade(BASE, 0.45))).toBeGreaterThan(8);
 	});
 
 	// A creature is a coloured thing in light, not a lamp. Blowing the

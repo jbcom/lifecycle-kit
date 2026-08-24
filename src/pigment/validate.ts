@@ -1,7 +1,7 @@
 /**
  * Parameter checks at this package's inward boundary.
  *
- * Same argument as `lifecycle-forms/src/validate.ts`, and the same failure
+ * Same argument as the forms-stage validator, and the same failure
  * that motivated it — found here by auditing the published packages against
  * each other rather than by any test inside one of them.
  *
@@ -20,21 +20,20 @@
  * which caller produced it.
  */
 
+import type { Composition } from "../chem/index.js";
+
 /** What the caller actually passed, briefly, for the error message. */
 function describe(value: unknown): string {
 	if (value === null) return "null";
 	if (value === undefined) return "undefined";
 	if (Array.isArray(value)) return "an array";
-	if (typeof value === "object")
-		return `an object (${Object.keys(value as object).join(", ")})`;
+	if (typeof value === "object") return `an object (${Object.keys(value as object).join(", ")})`;
 	return `${typeof value} ${String(value)}`;
 }
 
 export function finite(fn: string, name: string, value: unknown): number {
 	if (typeof value !== "number" || !Number.isFinite(value)) {
-		throw new TypeError(
-			`${fn}: ${name} must be a finite number, got ${describe(value)}`,
-		);
+		throw new TypeError(`${fn}: ${name} must be a finite number, got ${describe(value)}`);
 	}
 	return value;
 }
@@ -65,19 +64,33 @@ export function unitRange(fn: string, name: string, value: unknown): number {
 export function count(fn: string, name: string, value: unknown): number {
 	const n = finite(fn, name, value);
 	if (!Number.isInteger(n) || n < 0) {
-		throw new RangeError(
-			`${fn}: ${name} must be a non-negative whole number, got ${n}`,
-		);
+		throw new RangeError(`${fn}: ${name} must be a non-negative whole number, got ${n}`);
 	}
 	return n;
 }
 
 /** An object argument, so a missing options bag fails by name. */
 export function object<T>(fn: string, name: string, value: T | undefined): T {
-	if (value === null || typeof value !== "object") {
-		throw new TypeError(
-			`${fn}: ${name} must be an object, got ${describe(value)}`,
-		);
+	if (value === null || typeof value !== "object" || Array.isArray(value)) {
+		throw new TypeError(`${fn}: ${name} must be an object, got ${describe(value)}`);
 	}
 	return value;
+}
+
+const TISSUES: ReadonlyArray<keyof Composition> = [
+	"sugar",
+	"protein",
+	"lipid",
+	"mineral",
+	"chitin",
+	"keratin",
+];
+
+/** A normalised tissue composition; omitted legacy fields are treated as zero. */
+export function composition(fn: string, name: string, value: unknown): Composition {
+	const record = object(fn, name, value as Composition | undefined);
+	for (const tissue of TISSUES) {
+		if (record[tissue] !== undefined) unitRange(fn, `${name}.${tissue}`, record[tissue]);
+	}
+	return record;
 }

@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a capability that follows Lifecycle Kit's stage architecture.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What cannot be expressed with the current public API?
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Best-fit stage
+      options:
+        - chem
+        - bio-laws
+        - forms
+        - pigment
+        - assemblage
+        - cross-stage or uncertain
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed contract
+      description: Show the input and observable result you would expect; implementation details are optional.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Domain evidence
+      description: For chemistry or biological-law changes, include the source or measurement the proposal should implement.

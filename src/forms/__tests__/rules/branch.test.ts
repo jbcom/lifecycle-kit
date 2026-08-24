@@ -91,6 +91,30 @@ describe("branch", () => {
 		expect(Number.isFinite(result.shapes.length)).toBe(true);
 	});
 
+	/**
+	 * `splits: 1` divides by `params.splits - 1`, which is zero — the fan-turn
+	 * formula short-circuits to a fixed 0 specifically to avoid that division.
+	 * Every other test in this file uses `splits: 2`, so this guard had never
+	 * actually run; without it, a single-split branch (a stem continuing
+	 * without forking) would compute `angle * (0 / 0)`, which is NaN.
+	 */
+	it("does not divide by zero when splits is 1", () => {
+		const result = branch(twig, {
+			depth: 2,
+			splits: 1,
+			angle: 0.3,
+			shrink: 0.7,
+			attachAt: 1,
+			part: "twig",
+		});
+		expect(result.shapes).toHaveLength(2);
+		for (const shape of result.shapes) {
+			if (shape.kind !== "subpath") throw new Error("expected a subpath");
+			expect(Number.isFinite(shape.start.x)).toBe(true);
+			expect(Number.isFinite(shape.start.y)).toBe(true);
+		}
+	});
+
 	it("fans splits symmetrically about the parent direction", () => {
 		// splits=2 at depth 2: root plus two children fanned at ±angle/2.
 		const result = branch(twig, {
@@ -123,9 +147,7 @@ describe("branch", () => {
 		});
 		const groups = groupByPart(result);
 		expect(groups.every((g) => g.part === "twig")).toBe(true);
-		expect(groups.reduce((n, g) => n + g.shapes.length, 0)).toBe(
-			result.shapes.length,
-		);
+		expect(groups.reduce((n, g) => n + g.shapes.length, 0)).toBe(result.shapes.length);
 	});
 
 	// CONTINUITY ASSAY: sweeping angle produces no cliff in the overall extent.

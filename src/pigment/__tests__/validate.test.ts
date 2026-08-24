@@ -1,5 +1,5 @@
-import { normalise } from "../../chem/index.js";
 import { describe, expect, it } from "vitest";
+import { normalise } from "../../chem/index.js";
 import { NO_DIET_HISTORY, recordMeal } from "../dietHistory.js";
 import { paletteRamp } from "../palette.js";
 import { derivePigments } from "../pigments.js";
@@ -59,12 +59,12 @@ describe("derivePigments rejects what it cannot use", () => {
 	 * as the mistake survives.
 	 */
 	it("rejects an out-of-range exposure rather than clamping it", () => {
-		expect(() =>
-			derivePigments(COMPOSITION, DIET, { uvExposure: 12, genetics: 0.5 }),
-		).toThrow(/must be between 0 and 1, got 12/);
-		expect(() =>
-			derivePigments(COMPOSITION, DIET, { uvExposure: -1, genetics: 0.5 }),
-		).toThrow(/must be between 0 and 1/);
+		expect(() => derivePigments(COMPOSITION, DIET, { uvExposure: 12, genetics: 0.5 })).toThrow(
+			/must be between 0 and 1, got 12/,
+		);
+		expect(() => derivePigments(COMPOSITION, DIET, { uvExposure: -1, genetics: 0.5 })).toThrow(
+			/must be between 0 and 1/,
+		);
 	});
 
 	it("rejects a NaN that a caller computed upstream", () => {
@@ -77,9 +77,9 @@ describe("derivePigments rejects what it cannot use", () => {
 	});
 
 	it("names the missing argument rather than failing on a property read", () => {
-		expect(() =>
-			derivePigments(COMPOSITION, DIET, undefined as unknown as typeof INPUTS),
-		).toThrow(/derivePigments: inputs must be an object, got undefined/);
+		expect(() => derivePigments(COMPOSITION, DIET, undefined as unknown as typeof INPUTS)).toThrow(
+			/derivePigments: inputs must be an object, got undefined/,
+		);
 	});
 
 	it("rejects a diet whose average is not a number", () => {
@@ -90,6 +90,25 @@ describe("derivePigments rejects what it cannot use", () => {
 				INPUTS,
 			),
 		).toThrow(/derivePigments: diet\.plantAverage/);
+	});
+
+	it("rejects a corrupt meal count even though pigment arithmetic only reads the average", () => {
+		expect(() => derivePigments(COMPOSITION, { plantAverage: 0.5, meals: -1 }, INPUTS)).toThrow(
+			/derivePigments: diet\.meals must be a non-negative whole number/,
+		);
+	});
+
+	it("rejects invalid supplied tissue fractions but still permits omitted legacy fields", () => {
+		expect(() => derivePigments({ ...COMPOSITION, protein: Number.NaN }, DIET, INPUTS)).toThrow(
+			/derivePigments: composition\.protein must be a finite number/,
+		);
+		expect(() => derivePigments({ keratin: 1 } as never, DIET, INPUTS)).not.toThrow();
+	});
+
+	it("rejects arrays where an options object is required", () => {
+		expect(() => derivePigments([] as never, DIET, INPUTS)).toThrow(
+			/derivePigments: composition must be an object, got an array/,
+		);
 	});
 });
 
@@ -113,11 +132,7 @@ describe("paletteRamp survives a pigment object it did not build", () => {
 
 	/** Every stop must be a real colour — this is what assemblage draws with. */
 	it("emits four well-formed hex stops", () => {
-		const ramp = paletteRamp(
-			COMPOSITION,
-			derivePigments(COMPOSITION, DIET, INPUTS),
-			SURFACE,
-		);
+		const ramp = paletteRamp(COMPOSITION, derivePigments(COMPOSITION, DIET, INPUTS), SURFACE);
 		for (const stop of ["shadow", "base", "pigment", "highlight"] as const) {
 			expect(ramp[stop], stop).toMatch(/^#[0-9a-f]{6}$/);
 		}
@@ -155,6 +170,48 @@ describe("paletteRamp survives a pigment object it did not build", () => {
 	});
 });
 
+/**
+ * The "got ..." clause has a branch for an array and a branch for a plain
+ * object, distinct from "number" and "undefined". Every test above only ever
+ * passed a number, undefined, or NaN — never an array or object standing in
+ * for a number, which is what happens when a caller threads a whole options
+ * bag through where one field was expected.
+ */
+describe("bad-argument messages name arrays and objects specifically", () => {
+	it("names an array rather than calling it 'object'", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: [0.5] as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got an array/);
+	});
+
+	it("names an object's own keys", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: { value: 0.5 } as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got an object \(value\)/);
+	});
+
+	/**
+	 * `typeof null === "object"`, so `describe`'s null check has to run
+	 * before its object check or `null` would print as an object with no
+	 * keys — a strictly worse message for the single most common bad-argument
+	 * case: an unset field on a real record.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: null as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got null/);
+	});
+});
+
 describe("recordMeal cannot be poisoned", () => {
 	/**
 	 * The average IS the state, so one NaN meal makes `plantAverage` NaN
@@ -163,18 +220,16 @@ describe("recordMeal cannot be poisoned", () => {
 	 * rather than at read time.
 	 */
 	it("refuses a meal that would poison the average permanently", () => {
-		expect(() =>
-			recordMeal(NO_DIET_HISTORY, undefined as unknown as number),
-		).toThrow(/recordMeal: plantFraction/);
-		expect(() => recordMeal(NO_DIET_HISTORY, Number.NaN)).toThrow(
+		expect(() => recordMeal(NO_DIET_HISTORY, undefined as unknown as number)).toThrow(
 			/recordMeal: plantFraction/,
 		);
+		expect(() => recordMeal(NO_DIET_HISTORY, Number.NaN)).toThrow(/recordMeal: plantFraction/);
 	});
 
 	it("refuses a history that is already corrupt", () => {
-		expect(() =>
-			recordMeal({ plantAverage: Number.NaN, meals: 3 }, 0.5),
-		).toThrow(/recordMeal: history\.plantAverage/);
+		expect(() => recordMeal({ plantAverage: Number.NaN, meals: 3 }, 0.5)).toThrow(
+			/recordMeal: history\.plantAverage/,
+		);
 		expect(() => recordMeal({ plantAverage: 0.5, meals: 1.5 }, 0.5)).toThrow(
 			/recordMeal: history\.meals must be a non-negative whole number/,
 		);

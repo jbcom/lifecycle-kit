@@ -34,25 +34,19 @@ describe("enclose", () => {
 	});
 
 	it("returns the unit unchanged when it has no bounds", () => {
-		expect(enclose(EMPTY_PATH, { thickness: 1, part: "elytra" })).toEqual(
-			EMPTY_PATH,
-		);
+		expect(enclose(EMPTY_PATH, { thickness: 1, part: "elytra" })).toEqual(EMPTY_PATH);
 	});
 
 	it("grows the shell continuously as the enclosed body grows", () => {
 		const small = enclose(
 			{
-				shapes: [
-					{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 1, radiusY: 1 },
-				],
+				shapes: [{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 1, radiusY: 1 }],
 			},
 			{ thickness: 0.2, part: "shell" },
 		);
 		const large = enclose(
 			{
-				shapes: [
-					{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 2, radiusY: 2 },
-				],
+				shapes: [{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 2, radiusY: 2 }],
 			},
 			{ thickness: 0.2, part: "shell" },
 		);

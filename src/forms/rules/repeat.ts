@@ -2,8 +2,8 @@ import { concatPaths, EMPTY_PATH, type Path, tagPath } from "../path.js";
 import {
 	params as checkParams,
 	path as checkPath,
-	count,
 	finite,
+	outputCount,
 	partName,
 	vec2,
 } from "../validate.js";
@@ -33,7 +33,7 @@ export interface RepeatParams {
  * more `count`; the difference between a caterpillar and a millipede is
  * `spacing` and how many legs `pair` adds at each stop, not a different rule.
  *
- * Each copy is tagged `(part, i)` so `lifecycle-assemblage` can put segment 0
+ * Each copy is tagged `(part, i)` so the assemblage stage can put segment 0
  * (the head end) in front of segment 5 — draw order already reflects this
  * because copies are emitted low-index-first, but the tag is what lets a
  * consumer address "the third segment" directly rather than by array index
@@ -55,12 +55,12 @@ export function repeat(unit: Path, params: RepeatParams): Path {
 	// path made entirely of holes, with nothing thrown and no creature drawn.
 	const axis = vec2("repeat", "axis", params.axis);
 	finite("repeat", "spacing", params.spacing);
-	count("repeat", "count", params.count);
+	const count = outputCount("repeat", "count", params.count);
 	partName("repeat", "part", params.part);
 
-	if (params.count <= 0) return EMPTY_PATH;
+	if (count <= 0) return EMPTY_PATH;
 	const copies: Path[] = [];
-	for (let i = 0; i < params.count; i++) {
+	for (let i = 0; i < count; i++) {
 		const offset = {
 			x: axis.x * params.spacing * i,
 			y: axis.y * params.spacing * i,

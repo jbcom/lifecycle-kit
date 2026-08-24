@@ -1,5 +1,5 @@
 import { CATENATION, ELEMENTS, HYDROLYSIS } from "./elements.js";
-import { composition } from "./validate.js";
+import { backbone as checkBackbone, composition, positive, quantities } from "./validate.js";
 
 /**
  * Which chemistry life is built from — derived, not assumed.
@@ -57,6 +57,8 @@ const CANDIDATES: Backbone[] = ["C", "Si", "S"];
  * in the extreme heat where nothing holds together.
  */
 export function chainStability(symbol: Backbone, kelvin: number): number {
+	checkBackbone("chainStability", "symbol", symbol);
+	const temperature = positive("chainStability", "kelvin", kelvin);
 	const catenation = CATENATION[symbol] ?? 0;
 	if (catenation <= 0) return 0;
 
@@ -71,12 +73,12 @@ export function chainStability(symbol: Backbone, kelvin: number): number {
 	// 700-900 K range, and at this value carbon stability has fallen to ~0.15
 	// by 800 K while remaining ~0.5 at room temperature.
 	const CHAIN_LENGTH = 100;
-	const survives = Math.exp(-(CHAIN_LENGTH * 8.314 * kelvin) / (catenation * 1000));
+	const survives = Math.exp(-(CHAIN_LENGTH * 8.314 * temperature) / (catenation * 1000));
 
 	// Hydrolysis only matters where water is liquid. Between 273 and 373 K a
 	// silicon backbone is being taken apart as fast as it forms; carbon is
 	// indifferent. HYDROLYSIS is the fraction of chains lost per unit time.
-	const wet = kelvin > 273 && kelvin < 373 ? 1 : 0;
+	const wet = temperature > 273 && temperature < 373 ? 1 : 0;
 	const attacked = wet * (HYDROLYSIS[symbol] ?? 0);
 
 	return Math.max(0, survives * (1 - attacked));
@@ -95,6 +97,9 @@ export function backboneScore(
 	worldAbundance: Record<string, number>,
 	kelvin = 288,
 ): number {
+	checkBackbone("backboneScore", "symbol", symbol);
+	quantities("backboneScore", "worldAbundance", worldAbundance);
+	positive("backboneScore", "kelvin", kelvin);
 	const element = ELEMENTS[symbol];
 	if (!element) return 0;
 
@@ -121,6 +126,8 @@ export function deriveBiochemistry(
 	worldAbundance: Record<string, number>,
 	kelvin = 288,
 ): Biochemistry {
+	quantities("deriveBiochemistry", "worldAbundance", worldAbundance);
+	positive("deriveBiochemistry", "kelvin", kelvin);
 	const scored = CANDIDATES.map((symbol) => ({
 		symbol,
 		score: backboneScore(symbol, worldAbundance, kelvin),
@@ -191,6 +198,7 @@ export function inBackbone(
 	template: Record<string, number>,
 	backbone: Backbone,
 ): Record<string, number> {
+	checkBackbone("inBackbone", "backbone", backbone);
 	// An atom count is a count of atoms: a NaN here propagates straight into
 	// every molecular mass and growth cost computed from the result.
 	composition("inBackbone", "template", template);

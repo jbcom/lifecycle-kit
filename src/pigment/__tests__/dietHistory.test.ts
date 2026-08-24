@@ -46,9 +46,7 @@ describe("dietHistory", () => {
 		expect(() => recordMeal(NO_DIET_HISTORY, 5)).toThrow(
 			/recordMeal: plantFraction must be between 0 and 1, got 5/,
 		);
-		expect(() => recordMeal(NO_DIET_HISTORY, -5)).toThrow(
-			/recordMeal: plantFraction/,
-		);
+		expect(() => recordMeal(NO_DIET_HISTORY, -5)).toThrow(/recordMeal: plantFraction/);
 	});
 
 	/** In-range fractions still fold in exactly as before. */

@@ -1,15 +1,15 @@
 import type { Composition } from "../chem/index.js";
 import type { DietHistory } from "./dietHistory.js";
-import { object, unitRange } from "./validate.js";
+import { composition as checkComposition, count, object, unitRange } from "./validate.js";
 
 /**
  * PIGMENTATION
  *
  * Colour a creature actually produces, as biological pigment families rather
- * than an arbitrary RGB blend. Ported from `ebb-and-bloom`'s
- * `PigmentationSynthesis` — its biology was exactly right; only its render
+ * than an arbitrary RGB blend. Adapted from an earlier creature simulation's
+ * pigmentation model — its biology was exactly right; only its render
  * target (THREE.Color, a canvas texture) needs to go. This package emits
- * pigment CONCENTRATIONS and colour swatches; `lifecycle-assemblage` is
+ * pigment CONCENTRATIONS and colour swatches; the assemblage stage is
  * where those become pixels.
  *
  * Every family here is a real biological pigment class, not an invented
@@ -55,10 +55,7 @@ export interface PigmentConcentrations {
  * These are structural affinities, not arbitrary numbers — pigment is
  * deposited INTO the tissue that has somewhere to put it.
  */
-function tissueAffinity(
-	c: Composition,
-	ids: ReadonlyArray<keyof Composition>,
-): number {
+function tissueAffinity(c: Composition, ids: ReadonlyArray<keyof Composition>): number {
 	let total = 0;
 	for (const id of ids) total += c[id] ?? 0;
 	return total;
@@ -79,28 +76,17 @@ export function derivePigments(
 	diet: DietHistory,
 	inputs: PigmentInputs,
 ): PigmentConcentrations {
-	object("derivePigments", "composition", composition);
+	checkComposition("derivePigments", "composition", composition);
 	object("derivePigments", "diet", diet);
 	object("derivePigments", "inputs", inputs);
 
 	// Checked, not clamped. `Math.max(0, undefined)` is NaN, so the old clamp
 	// turned a missing input into a null concentration and handed it
 	// downstream — see validate.ts for what that cost.
-	const uv = unitRange(
-		"derivePigments",
-		"inputs.uvExposure",
-		inputs.uvExposure,
-	);
-	const genetics = unitRange(
-		"derivePigments",
-		"inputs.genetics",
-		inputs.genetics,
-	);
-	const plantAverage = unitRange(
-		"derivePigments",
-		"diet.plantAverage",
-		diet.plantAverage,
-	);
+	const uv = unitRange("derivePigments", "inputs.uvExposure", inputs.uvExposure);
+	const genetics = unitRange("derivePigments", "inputs.genetics", inputs.genetics);
+	const plantAverage = unitRange("derivePigments", "diet.plantAverage", diet.plantAverage);
+	count("derivePigments", "diet.meals", diet.meals);
 
 	const keratinAffinity = tissueAffinity(composition, ["keratin"]);
 	const chitinAffinity = tissueAffinity(composition, ["chitin"]);

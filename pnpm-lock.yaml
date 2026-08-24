@@ -8,9 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@arcade-cabinet/lifecycle-kit':
-        specifier: ^0.1.0
-        version: 0.1.0(vitest@3.2.7)
       '@biomejs/biome':
         specifier: ^2.3.14
         version: 2.5.10
@@ -25,12 +22,6 @@ importers:
         version: 3.2.7
 
 packages:
-
-  '@arcade-cabinet/lifecycle-kit@0.1.0':
-    resolution: {integrity: sha512-lOSazPGxOYJSw1hSpi2cbV+euFheWdy56sVo+iD/0UuaoJQqOxvX9DI7RZgCk5rRoMXv2X8Q8HZ91XEQ5H+xqw==, tarball: https://redacted-private-registry.example/api/packages/arcade-cabinet/npm/%40arcade-cabinet%2Flifecycle-kit/-/0.1.0/lifecycle-kit-0.1.0.tgz}
-    hasBin: true
-    peerDependencies:
-      vitest: ^3.2.4
 
   '@biomejs/biome@2.5.10':
     resolution: {integrity: sha512-WRKXARA3kTuiV5sxqTpobJ/I0MVd4vk3pOL6wnp5az4LntFIhWTj1RWZq3DI9PCEN3lXcqy7p5aqUHzvq8AXyQ==}
@@ -651,11 +642,6 @@ packages:
     hasBin: true
 
 snapshots:
-
-  '@arcade-cabinet/lifecycle-kit@0.1.0(vitest@3.2.7)':
-    dependencies:
-      esbuild: 0.28.2
-      vitest: 3.2.7
 
   '@biomejs/biome@2.5.10':
     optionalDependencies:

@@ -55,9 +55,11 @@ jobs:
               per_page: 100,
             });
 
-            const touched = files
-              .map((f) => f.filename)
-              .filter((path) => controlPlanePatterns.some((pattern) => pattern.test(path)));
+            const touched = files.flatMap((file) =>
+              [file.filename, file.previous_filename]
+                .filter((path): path is string => Boolean(path))
+                .filter((path) => controlPlanePatterns.some((pattern) => pattern.test(path)))
+            );
 
             if (touched.length > 0) {
               core.setFailed(

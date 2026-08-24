@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      skip-analysis: ${{ steps.decision.outputs.skip-analysis }}
+      skip_analysis: ${{ steps.decision.outputs.skip_analysis }}
     steps:
       - id: dependabot
         if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
@@ -31,16 +31,16 @@ jobs:
           UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
         run: |
           if [ "$EVENT_NAME" = "pull_request" ] && [[ "$HEAD_REF" == release-please--* ]]; then
-            echo "skip-analysis=true" >> "$GITHUB_OUTPUT"
+            echo "skip_analysis=true" >> "$GITHUB_OUTPUT"
           elif [ "$PR_AUTHOR" = "dependabot[bot]" ] && [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
-            echo "skip-analysis=true" >> "$GITHUB_OUTPUT"
+            echo "skip_analysis=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip-analysis=false" >> "$GITHUB_OUTPUT"
+            echo "skip_analysis=false" >> "$GITHUB_OUTPUT"
           fi
 
   analyze:
     needs: classify
-    if: needs.classify.outputs.skip-analysis != 'true'
+    if: needs.classify.outputs.skip_analysis != 'true'
     runs-on: ubuntu-latest
     permissions:
       security-events: write

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      skip-validation: ${{ steps.decision.outputs.skip-validation }}
+      skip_validation: ${{ steps.decision.outputs.skip_validation }}
     steps:
       - id: dependabot
         if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
@@ -33,18 +33,18 @@ jobs:
           UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
         run: |
           if [ "$EVENT_NAME" = "pull_request" ] && [[ "$HEAD_REF" == release-please--* ]]; then
-            echo "skip-validation=true" >> "$GITHUB_OUTPUT"
+            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
             echo "Release Please PR: validation is intentionally skipped."
           elif [ "$PR_AUTHOR" = "dependabot[bot]" ] && [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
-            echo "skip-validation=true" >> "$GITHUB_OUTPUT"
+            echo "skip_validation=true" >> "$GITHUB_OUTPUT"
             echo "Dependabot non-major update ($UPDATE_TYPE): validation is intentionally skipped."
           else
-            echo "skip-validation=false" >> "$GITHUB_OUTPUT"
+            echo "skip_validation=false" >> "$GITHUB_OUTPUT"
           fi
 
   verify:
     needs: classify
-    if: needs.classify.outputs.skip-validation != 'true'
+    if: needs.classify.outputs.skip_validation != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -66,7 +66,7 @@ jobs:
 
   compatibility:
     needs: classify
-    if: needs.classify.outputs.skip-validation != 'true'
+    if: needs.classify.outputs.skip_validation != 'true'
     name: Node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
@@ -107,7 +107,7 @@ jobs:
     steps:
       - name: Check all required jobs succeeded
         run: |
-          if [ "${{ needs.classify.outputs.skip-validation }}" = "true" ]; then
+          if [ "${{ needs.classify.outputs.skip_validation }}" = "true" ]; then
             echo "Validation intentionally skipped for this encapsulated pull request."
             exit 0
           fi

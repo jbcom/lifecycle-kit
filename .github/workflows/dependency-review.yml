@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      skip-review: ${{ steps.decision.outputs.skip-review }}
+      skip_review: ${{ steps.decision.outputs.skip_review }}
     steps:
       - id: dependabot
         if: github.event.pull_request.user.login == 'dependabot[bot]'
@@ -30,11 +30,11 @@ jobs:
           UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
         run: |
           if [[ "$HEAD_REF" == release-please--* ]]; then
-            echo "skip-review=true" >> "$GITHUB_OUTPUT"
+            echo "skip_review=true" >> "$GITHUB_OUTPUT"
           elif [ "$PR_AUTHOR" = "dependabot[bot]" ] && [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
-            echo "skip-review=true" >> "$GITHUB_OUTPUT"
+            echo "skip_review=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip-review=false" >> "$GITHUB_OUTPUT"
+            echo "skip_review=false" >> "$GITHUB_OUTPUT"
           fi
 
   dependency-review:
@@ -43,13 +43,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Report intentional skip
-        if: needs.classify.outputs.skip-review == 'true'
+        if: needs.classify.outputs.skip_review == 'true'
         run: echo "Dependency review intentionally skipped for this encapsulated pull request."
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: needs.classify.outputs.skip-review != 'true'
+        if: needs.classify.outputs.skip_review != 'true'
         with:
           persist-credentials: false
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        if: needs.classify.outputs.skip-review != 'true'
+        if: needs.classify.outputs.skip_review != 'true'
         with:
           fail-on-severity: high

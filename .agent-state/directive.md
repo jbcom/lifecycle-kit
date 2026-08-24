@@ -30,9 +30,18 @@ OIDC trusted publishing via Claude in Chrome once published.
 - [x] Apply baseline branch protection to main via gh api (require PR before
       merge; no required review count; block force-push/deletion; require
       conversation resolution)
-- [ ] Add required status checks (verify, compatibility legs, CodeQL
+- [x] Add required status checks (verify, compatibility legs, CodeQL
       analyze) to main branch protection once first CI run establishes
-      those check names on GitHub
+      those check names on GitHub. Also found + disabled GitHub's
+      default CodeQL auto-setup, which was running redundantly
+      alongside the explicit codeql.yml workflow. Also found the
+      ubuntu-24.04/windows-2022 pinned OS labels sat queued 12+ min
+      with zero runner pickup on this brand-new repo's first-ever
+      workflow run - switched to ubuntu-latest/windows-latest matching
+      the working sibling-repo convention; run then started, though
+      timing suggests it may have just been slow initial provisioning
+      rather than the label choice itself (kept the -latest labels
+      regardless, since pinning OS patch version bought nothing here).
 - [x] pnpm-workspace.yaml: add packages: ["docs"]
 - [x] Scaffold docs/ Astro + Starlight project (starlight-typedoc for API
       reference from src/**/index.ts per subpath, starlight-llms-txt for
@@ -69,8 +78,26 @@ OIDC trusted publishing via Claude in Chrome once published.
       version only, mirrors .nvmrc (mise doesn't read .nvmrc by default);
       CI continues to use official actions/pnpm/setup-node only, never mise.
       engines.node stays >=22 (widest floor = matrix's tested minimum).
-- [ ] Push branch, open PR as draft
-- [ ] Wait CI green, promote PR to ready, merge
+- [x] Push branch, open PR as draft
+- [x] Wait CI green, promote PR to ready, merge (PR #1, squash-merged
+      2026-08-24T13:57:54Z as b4a2a11)
+- [x] Post-merge: found dependabot.yml's separate `/` and `/docs` npm
+      entries both scan the whole pnpm workspace (Dependabot walks
+      workspace members from the root manifest), causing duplicate PRs
+      (#3 and #4, same typescript bump). Closed #3 as duplicate, removed
+      the redundant /docs entry, on branch
+      chore/fix-dependabot-workspace-scope. Also caught: docs/package.json
+      still had typescript ^5.9.3 — the root TS7 upgrade never touched
+      the docs workspace member. Tracking both issues: the Dependabot
+      scope fix lands on this branch (dependabot.yml only); PR #4
+      handles the docs/package.json typescript bump itself.
+- [x] Commit the dependabot.yml fix alone on this branch (don't also
+      hand-edit docs/package.json's typescript version — PR #4 already
+      does exactly that and is CI-green; let it land normally instead
+      of duplicating/conflicting with it)
+- [x] Merge Dependabot PR #4 (typescript bump in docs/) once green — no
+      automerge bot configured on this GitHub repo (unlike the Gitea
+      fleet), so this needs a manual merge. Merged 2026-08-24T14:01:30Z.
 - [ ] Verify Pages live at jonbogaty.com/lifecycle-kit
 - [ ] Verify npm publish succeeded under jbdevprimary
 - [ ] Use Claude in Chrome to configure npm trusted publishing (OIDC) for

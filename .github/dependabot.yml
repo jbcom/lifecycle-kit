@@ -10,15 +10,6 @@ updates:
         patterns:
           - "*"
 
-  - package-ecosystem: npm
-    directory: /docs
-    schedule:
-      interval: weekly
-    groups:
-      docs-dependencies:
-        patterns:
-          - "*"
-
   - package-ecosystem: github-actions
     directory: /
     schedule:

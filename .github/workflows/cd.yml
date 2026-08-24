@@ -65,6 +65,17 @@ jobs:
         run: |
           tag="$(gh api "repos/$REPOSITORY/releases" --paginate --jq ".[] | select(.target_commitish == \"$HEAD_SHA\") | .tag_name" | head -n 1)"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Report publication decision
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if [ -z "$TAG" ]; then
+            echo "::notice::Release Please did not create a GitHub release for this commit; npm publication is intentionally skipped."
+            printf '%s\n\n%s\n' "### npm publication" "Skipped: no release was created for this commit." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Publishing release $TAG from its immutable tag."
+            printf '%s\n\n%s\n' "### npm publication" "Publishing \`$TAG\` from its immutable tag." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: steps.release.outputs.tag != ''
         with:
@@ -86,3 +97,10 @@ jobs:
       - if: steps.release.outputs.tag != ''
         name: Publish with npm trusted publishing
         run: pnpm publish --access public --provenance --no-git-checks
+      - if: steps.release.outputs.tag != ''
+        name: Report published package
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          echo "Published lifecycle-kit from $TAG through npm trusted publishing."
+          printf '%s\n\n%s\n' "### npm publication" "Published \`lifecycle-kit\` from \`$TAG\` through npm trusted publishing." >> "$GITHUB_STEP_SUMMARY"

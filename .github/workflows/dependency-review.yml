@@ -41,7 +41,7 @@ jobs:
             [ "$matched" = true ]
           }
 
-          if [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "app/github-actions" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+          if [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "jbdevprimary" ] && [[ "$HEAD_REF" == release-please--* ]]; then
             echo "skip_review=true" >> "$GITHUB_OUTPUT"
           elif is_clearly_non_major_dependabot_update; then
             echo "skip_review=true" >> "$GITHUB_OUTPUT"

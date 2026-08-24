@@ -44,7 +44,7 @@ jobs:
             [ "$matched" = true ]
           }
 
-          if [ "$EVENT_NAME" = "pull_request" ] && [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "app/github-actions" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+          if [ "$EVENT_NAME" = "pull_request" ] && [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "jbdevprimary" ] && [[ "$HEAD_REF" == release-please--* ]]; then
             echo "skip_validation=true" >> "$GITHUB_OUTPUT"
             echo "Release Please PR: validation is intentionally skipped."
           elif is_clearly_non_major_dependabot_update; then

@@ -39,7 +39,7 @@ const body = normalise({
 compositionColor(body); // a real hex colour, never NaN
 ```
 
-See the [API reference](../../reference/) for every export across all five
-stages, or the runnable
+See the [API reference](../../reference/readme/) for every export across all
+five stages, or the runnable
 [examples on GitHub](https://github.com/jbcom/lifecycle-kit/tree/main/examples)
 for the full world-to-creature pipeline.

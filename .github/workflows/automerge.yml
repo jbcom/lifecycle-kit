@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release-please:
-    if: github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.event.pull_request.head.ref, 'release-please--')
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login == 'app/github-actions' && startsWith(github.event.pull_request.head.ref, 'release-please--')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -21,7 +21,7 @@ jobs:
         run: gh pr merge --auto --merge "$PR_URL"
 
   dependabot:
-    if: contains(github.event.pull_request.user.login, 'dependabot')
+    if: github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.user.login, 'dependabot')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

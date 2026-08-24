@@ -23,6 +23,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.head_ref }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPOSITORY: ${{ github.repository }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
@@ -40,7 +42,7 @@ jobs:
             [ "$matched" = true ]
           }
 
-          if [ "$EVENT_NAME" = "pull_request" ] && [[ "$HEAD_REF" == release-please--* ]]; then
+          if [ "$EVENT_NAME" = "pull_request" ] && [ "$PR_REPOSITORY" = "$BASE_REPOSITORY" ] && [ "$PR_AUTHOR" = "app/github-actions" ] && [[ "$HEAD_REF" == release-please--* ]]; then
             echo "skip_analysis=true" >> "$GITHUB_OUTPUT"
           elif is_clearly_non_major_dependabot_update; then
             echo "skip_analysis=true" >> "$GITHUB_OUTPUT"

@@ -1,1 +1,2 @@
 {"ts":"2026-08-24T13:57:57.934Z","sha":"b4a2a11327282113b10413aa187cf3c454a92c60","subject":"ci: SHA-pinned pipeline, Astro docs site, latest toolchain (#1)","decision":null,"why":null,"resolves":[],"overrides":[],"source":"gh-pr-merge"}
+{"ts":"2026-08-24T14:01:32.875Z","sha":"e825a967f60ff65cfee2c2d9f850c62f93e6ed86","subject":"chore(deps-dev): Bump typescript in the npm-dependencies group (#4)","decision":null,"why":null,"resolves":[],"overrides":[],"source":"gh-pr-merge"}

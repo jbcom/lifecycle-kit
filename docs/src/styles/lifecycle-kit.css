@@ -1,87 +1,40 @@
-/*
- * Lifecycle Kit docs theme.
- *
- * Palette drawn from the project hero illustration: warm parchment paper,
- * a sage-green accent (the same #365c4a used in the README's license
- * badge), and dusty rose / ochre / teal-gray tissue tones as supporting
- * colors for callouts and syntax highlighting.
- */
+/* Lifecycle Kit's parchment, mineral, and living-tissue visual language. */
 
 :root {
-	--lk-parchment: #f9f5f0;
-	--lk-parchment-dark: #f0e9e0;
-	--lk-ink: #2b2b28;
-	--lk-sage: #365c4a;
-	--lk-sage-light: #728c80;
-	--lk-sage-pale: #aebdb6;
-	--lk-sage-dark: #254033;
-	--lk-rose: #b5566a;
-	--lk-ochre: #c99a3e;
-	--lk-teal-gray: #4b6b6a;
-
-	--sl-color-accent-low: #dce6e1;
-	--sl-color-accent: var(--lk-sage);
-	--sl-color-accent-high: var(--lk-sage-dark);
-
-	--sl-color-white: var(--lk-ink);
-	--sl-color-gray-1: #3a3a36;
-	--sl-color-gray-2: #55554f;
-	--sl-color-gray-3: #75756c;
-	--sl-color-gray-4: #9a9a8e;
-	--sl-color-gray-5: #c4c2b6;
-	--sl-color-gray-6: var(--lk-parchment-dark);
-	--sl-color-black: var(--lk-parchment);
-
-	--sl-color-bg: var(--lk-parchment);
-	--sl-color-bg-nav: var(--lk-parchment);
-	--sl-color-bg-sidebar: var(--lk-parchment-dark);
-	--sl-color-bg-inline-code: #eee4d8;
+  --lk-parchment: #f9f5f0;
+  --lk-ink: #2b2b28;
+  --lk-rose: #b5566a;
+  --lk-ochre: #c99a3e;
+  --lk-teal: #4b6b6a;
 }
 
-:root[data-theme="dark"] {
-	--lk-parchment: #1c1a17;
-	--lk-parchment-dark: #262320;
-	--lk-ink: #ece6da;
-	--lk-sage: #7fa696;
-	--lk-sage-light: #9fbeb1;
-	--lk-sage-pale: #c3d6cd;
-	--lk-sage-dark: #4d6d5e;
-	--lk-rose: #d98298;
-	--lk-ochre: #e0b95c;
-	--lk-teal-gray: #82a5a3;
-
-	--sl-color-accent-low: #2f4a3f;
-	--sl-color-accent: var(--lk-sage);
-	--sl-color-accent-high: var(--lk-sage-pale);
-
-	--sl-color-white: var(--lk-ink);
-	--sl-color-gray-1: #ece6da;
-	--sl-color-gray-2: #c9c3b7;
-	--sl-color-gray-3: #9a9488;
-	--sl-color-gray-4: #6f695f;
-	--sl-color-gray-5: #453f37;
-	--sl-color-gray-6: var(--lk-parchment-dark);
-	--sl-color-black: var(--lk-parchment);
-
-	--sl-color-bg: var(--lk-parchment);
-	--sl-color-bg-nav: var(--lk-parchment);
-	--sl-color-bg-sidebar: var(--lk-parchment-dark);
-	--sl-color-bg-inline-code: #2c2822;
+html:not(.dark) body {
+  background: var(--lk-parchment);
+  color: var(--lk-ink);
 }
 
-:root {
-	--sl-font: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-	--sl-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+.prose h1,
+.prose h2,
+.prose h3 {
+  letter-spacing: -0.025em;
 }
 
-.sl-markdown-content code {
-	color: var(--lk-teal-gray);
+.prose h2 {
+  border-bottom: 1px solid color-mix(in srgb, var(--lk-teal) 28%, transparent);
+  padding-bottom: 0.35rem;
 }
 
-.sl-markdown-content a {
-	text-decoration-color: var(--lk-rose);
+.prose a {
+  text-decoration-color: var(--lk-rose);
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.16em;
 }
 
-.hero-tagline {
-	color: var(--lk-ochre);
+.prose blockquote {
+  border-left-color: var(--lk-ochre);
+}
+
+.nav-group-label {
+  color: var(--lk-teal);
+  letter-spacing: 0.08em;
 }

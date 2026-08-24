@@ -1,0 +1,60 @@
+language: "en-US"
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: true
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+  pre_merge_checks:
+    custom_checks:
+      - name: "Hardcoded credentials"
+        mode: "error"
+        instructions: >
+          Fail if a newly added or changed line in production source,
+          configuration, or logging code contains what looks like a real
+          credential, API key, password, private key, or other secret
+          material — a literal string assigned to a variable/field whose
+          name suggests a secret (token, key, password, credential,
+          secret) that is not read from an environment variable, a
+          secrets manager, or a config-injection mechanism. Exclude
+          values in test fixtures, example files, or documentation that
+          are clearly placeholders (e.g. "sk-xxx", "your-api-key-here",
+          "changeme").
+      - name: "Sensitive-data logging"
+        mode: "error"
+        instructions: >
+          Fail if newly added logging, error messages, or telemetry
+          output includes a credential, authentication header (e.g.
+          Authorization, Cookie), access token, password, or other
+          secret-shaped value — whether logged directly or via an object
+          that is not first redacted.
+      - name: "Unsafe GitHub Actions changes"
+        mode: "error"
+        instructions: >
+          For any change to files under .github/workflows/ or
+          .github/actions/, fail if it introduces: a broader
+          "permissions:" grant than the job actually needs; execution of
+          untrusted input (PR title, branch name, issue body, commit
+          message, or other attacker-controlled context) via direct
+          shell interpolation instead of an environment variable; a
+          floating action reference (a branch name, "@main", "@master",
+          "@latest", or a bare major-version tag instead of a full commit
+          SHA); a secret exposed to a job that checks out or executes
+          code from a pull request; or a self-hosted runner used to
+          execute code from a public pull request.
+      - name: "Breaking public API without declaration"
+        mode: "error"
+        instructions: >
+          This repository publishes @jbdevprimary/lifecycle-kit to npm.
+          Fail if a change removes, renames, or changes the signature or
+          return shape of an export reachable from package.json#exports
+          (the root export or any ./chem, ./forms, ./bio-laws, ./pigment,
+          ./assemblage subpath) without the commit message using a
+          Conventional Commits "!" after the type/scope or a "BREAKING
+          CHANGE:" footer — both of which this repo's Release Please
+          config depends on to compute the next version correctly.
+
+chat:
+  auto_reply: true

@@ -5,7 +5,7 @@
 Please do not open a public issue for a security problem.
 
 Report it privately through
-[GitHub Security Advisories](https://github.com/jbcom/lifecycle/security/advisories/new),
+[GitHub Security Advisories](https://github.com/jbcom/lifecycle-kit/security/advisories/new),
 which lets us discuss and fix the issue before it is disclosed.
 
 You can expect an acknowledgement within a few days. If a fix is warranted, we

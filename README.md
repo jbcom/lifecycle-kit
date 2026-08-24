@@ -1,4 +1,4 @@
-# @jbdevprimary/lifecycle-kit
+# lifecycle-kit
 
 ![Elemental chemistry flowing through tissue into a segmented procedural organism](https://raw.githubusercontent.com/jbcom/lifecycle-kit/main/docs/lifecycle-kit-hero.webp)
 
@@ -29,7 +29,7 @@ the result. Lifecycle Kit keeps the causal chain intact:
 ## Install
 
 ```sh
-pnpm add @jbdevprimary/lifecycle-kit
+pnpm add lifecycle-kit
 ```
 
 No runtime dependencies.
@@ -57,7 +57,7 @@ import {
   normalise,
   readMetabolicState,
   writeMetabolicState,
-} from "@jbdevprimary/lifecycle-kit/chem";
+} from "lifecycle-kit/chem";
 
 // Which backbone element wins on this world, from its temperature and
 // element abundances.
@@ -82,7 +82,7 @@ readMetabolicState(saved); // a canonical MetabolicState
 ### `bio-laws` — cited biological scaling laws
 
 ```ts
-import { expectedBrainMass, encephalizationQuotient, maxGroupSize } from "@jbdevprimary/lifecycle-kit/bio-laws";
+import { expectedBrainMass, encephalizationQuotient, maxGroupSize } from "lifecycle-kit/bio-laws";
 
 expectedBrainMass(70); // ~0.24 kg, from Jerison's mammalian brain/body scaling
 encephalizationQuotient(1.4, 62); // ~6.3, a human-scale EQ (Jerison 1973)
@@ -92,7 +92,7 @@ maxGroupSize(4.1); // ~148 — Dunbar's number, from his own neocortex-ratio reg
 ### `forms` — compositional rules emitting vector geometry
 
 ```ts
-import { taper, repeat, bounds } from "@jbdevprimary/lifecycle-kit/forms";
+import { taper, repeat, bounds } from "lifecycle-kit/forms";
 
 // A single tapered body segment.
 const segment = taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4, part: "seg" });
@@ -106,8 +106,8 @@ bounds(body); // { min: { x, y }, max: { x, y } } — the emitted geometry's exa
 ### `pigment` — colour from diet, exposure, chemistry
 
 ```ts
-import { derivePigments, paletteRamp, NO_DIET_HISTORY, recordMeal } from "@jbdevprimary/lifecycle-kit/pigment";
-import { EMPTY_COMPOSITION } from "@jbdevprimary/lifecycle-kit/chem";
+import { derivePigments, paletteRamp, NO_DIET_HISTORY, recordMeal } from "lifecycle-kit/pigment";
+import { EMPTY_COMPOSITION } from "lifecycle-kit/chem";
 
 const diet = recordMeal(NO_DIET_HISTORY, 0.8); // a mostly plant-matter meal
 const composition = { ...EMPTY_COMPOSITION, keratin: 1 };
@@ -122,8 +122,8 @@ paletteRamp(composition, pigments, { metallic: 0.1, roughness: 0.7, opacity: 1 }
 ### `assemblage` — 2.5D assembly, lighting, depth
 
 ```ts
-import { assemble, shade, DEFAULT_LIGHT } from "@jbdevprimary/lifecycle-kit/assemblage";
-import { taper } from "@jbdevprimary/lifecycle-kit/forms";
+import { assemble, shade, DEFAULT_LIGHT } from "lifecycle-kit/assemblage";
+import { taper } from "lifecycle-kit/forms";
 
 const segment = taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4, part: "seg" });
 
@@ -137,7 +137,7 @@ shade("#beb5af", part.light); // the tissue colour, shaded by that part's light 
 The root export exposes each stage as a namespace:
 
 ```ts
-import { chem, forms } from "@jbdevprimary/lifecycle-kit";
+import { chem, forms } from "lifecycle-kit";
 
 chem.normalise(/* ... */);
 forms.taper(/* ... */);
@@ -227,7 +227,7 @@ is intentionally not shipped.
 ## Troubleshooting
 
 - **`ERR_REQUIRE_ESM`:** use `import` syntax, set `"type": "module"`, or load
-  from CommonJS with `await import("@jbdevprimary/lifecycle-kit/chem")`.
+  from CommonJS with `await import("lifecycle-kit/chem")`.
 - **An input throws instead of being clamped:** validation is deliberate.
   Temperatures are kelvin, composition and exposure fractions are 0..1, masses
   are kilograms where documented, and negative physical quantities are caller
@@ -236,7 +236,7 @@ is intentionally not shipped.
   older JSON; it migrates partial known tissue or returns a fresh newborn.
   Use `writeMetabolicState` to reject invalid state before persisting it.
 - **A bundle includes more than expected:** import a stage subpath such as
-  `@jbdevprimary/lifecycle-kit/forms` instead of the root namespace module.
+  `lifecycle-kit/forms` instead of the root namespace module.
 
 If behavior still looks wrong, open a
 [bug report](https://github.com/jbcom/lifecycle-kit/issues/new/choose) with a

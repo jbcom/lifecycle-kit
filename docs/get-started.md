@@ -6,7 +6,7 @@ description: Install Lifecycle Kit and run a deterministic chemistry-to-form exa
 ## Install
 
 ```sh
-pnpm add @jbdevprimary/lifecycle-kit
+pnpm add lifecycle-kit
 ```
 
 Lifecycle Kit is ESM-only and supports Node.js 22 or newer plus modern
@@ -18,7 +18,7 @@ Subpath imports are the primary interface. They minimize the imported surface
 and make dependencies visible at the call site.
 
 ```ts
-import { compositionColor, deriveBiochemistry, normalise } from "@jbdevprimary/lifecycle-kit/chem";
+import { compositionColor, deriveBiochemistry, normalise } from "lifecycle-kit/chem";
 
 const { backbone } = deriveBiochemistry({ Si: 30 }, 500);
 // backbone: "Si"

@@ -5,7 +5,7 @@ import * as pigment from "../index.js";
 /**
  * `./pigment` is a real `package.json` "exports" subpath. Every other test
  * in this package imports the concrete modules directly, so the barrel that
- * `@jbdevprimary/lifecycle-kit/pigment` consumers actually load had never itself
+ * `lifecycle-kit/pigment` consumers actually load had never itself
  * been exercised.
  */
 describe("the ./pigment public entry point", () => {

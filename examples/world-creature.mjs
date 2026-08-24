@@ -1,19 +1,14 @@
-import { assemble, DEFAULT_LIGHT, shade } from "@jbdevprimary/lifecycle-kit/assemblage";
-import { maxGroupSize } from "@jbdevprimary/lifecycle-kit/bio-laws";
+import { assemble, DEFAULT_LIGHT, shade } from "lifecycle-kit/assemblage";
+import { maxGroupSize } from "lifecycle-kit/bio-laws";
 import {
 	bodyMassKg,
 	composition,
 	deriveBiochemistry,
 	metabolise,
 	NEWBORN,
-} from "@jbdevprimary/lifecycle-kit/chem";
-import { bounds, repeat, taper, toSvgDocument } from "@jbdevprimary/lifecycle-kit/forms";
-import {
-	derivePigments,
-	NO_DIET_HISTORY,
-	paletteRamp,
-	recordMeal,
-} from "@jbdevprimary/lifecycle-kit/pigment";
+} from "lifecycle-kit/chem";
+import { bounds, repeat, taper, toSvgDocument } from "lifecycle-kit/forms";
+import { derivePigments, NO_DIET_HISTORY, paletteRamp, recordMeal } from "lifecycle-kit/pigment";
 
 const world = deriveBiochemistry({ Si: 30, S: 2 }, 500);
 let state = NEWBORN;

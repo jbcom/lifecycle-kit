@@ -4,7 +4,7 @@ Operating instructions for coding agents working in this repository.
 
 ## What this package is
 
-`@jbdevprimary/lifecycle-kit` is a deterministic, ESM-only TypeScript
+`lifecycle-kit` is a deterministic, ESM-only TypeScript
 library: five independent pipeline stages (`chem`, `bio-laws`, `forms`,
 `pigment`, `assemblage`) exported as separate subpaths plus a root export
 that chains them. Every function is pure — plain-object in, plain-object
@@ -47,7 +47,7 @@ floor.
 To build and preview the docs site:
 
 ```sh
-pnpm --filter @jbdevprimary/lifecycle-kit-docs dev     # local Sourcey server
+pnpm --filter lifecycle-kit-docs dev     # local Sourcey server
 pnpm docs:build                                        # extracts API Markdown and builds docs/dist
 ```
 
@@ -70,9 +70,9 @@ exercise the same subdirectory deployment paths.
 - **New GitHub Actions steps must use a pinned commit SHA**, resolved via
   `gh api repos/<owner>/<repo>/commits/<tag>` — never a floating major tag
   and never a SHA from memory/training data.
-- **`docs/` is its own pnpm workspace package** (`@jbdevprimary/lifecycle-kit-docs`,
+- **`docs/` is its own pnpm workspace package** (`lifecycle-kit-docs`,
   private) with its own `node_modules`. Root-level `pnpm verify` does not
-  touch it; run its scripts with `pnpm --filter @jbdevprimary/lifecycle-kit-docs <script>`.
+  touch it; run its scripts with `pnpm --filter lifecycle-kit-docs <script>`.
 
 ## Where things run
 

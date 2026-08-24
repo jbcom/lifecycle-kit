@@ -47,7 +47,7 @@ Import the narrowest stage that solves your problem. Subpaths keep bundles
 small and make a symbol's provenance clear.
 
 ```ts
-import { chem, forms } from "@jbdevprimary/lifecycle-kit";
+import { chem, forms } from "lifecycle-kit";
 
 const tissue = chem.normalise({ sugar: 0, protein: 3, lipid: 1, mineral: 0, chitin: 0, keratin: 0 });
 const segment = forms.taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4 });

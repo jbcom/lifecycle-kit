@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compositionColor, dominantTissue, growthCost } from "../biomolecules";
+import { compositionColor, dominantTissue, EMPTY_COMPOSITION, growthCost } from "../biomolecules";
 import {
 	bodyMass,
 	bodyMassKg,
@@ -9,6 +9,7 @@ import {
 	metabolise,
 	NEWBORN,
 	readMetabolicState,
+	writeMetabolicState,
 } from "../metabolism";
 
 const liveOn = (
@@ -36,11 +37,7 @@ const IDLE = { exertion: 0, growth: 0, rest: 0 };
 
 describe("metabolism", () => {
 	it("builds muscle from protein when the pet actually exerts itself", () => {
-		const athlete = live(
-			50,
-			{ protein: 1, mineral: 0.4 },
-			{ exertion: 1, growth: 0.3, rest: 0 },
-		);
+		const athlete = live(50, { protein: 1, mineral: 0.4 }, { exertion: 1, growth: 0.3, rest: 0 });
 		expect(dominantTissue(composition(athlete))).toBe("protein");
 	});
 
@@ -51,11 +48,7 @@ describe("metabolism", () => {
 	});
 
 	it("turns rest and rich food into insulation", () => {
-		const fat = live(
-			50,
-			{ lipid: 1, sugar: 0.5 },
-			{ exertion: 0, growth: 0, rest: 1 },
-		);
+		const fat = live(50, { lipid: 1, sugar: 0.5 }, { exertion: 0, growth: 0, rest: 1 });
 		const c = composition(fat);
 		expect(c.lipid).toBeGreaterThan(c.protein);
 	});
@@ -69,15 +62,9 @@ describe("metabolism", () => {
 	});
 
 	it("builds keratin only from a keratin diet", () => {
-		const spined = live(
-			80,
-			{ keratin: 1 },
-			{ exertion: 0, growth: 1, rest: 0 },
-		);
+		const spined = live(80, { keratin: 1 }, { exertion: 0, growth: 1, rest: 0 });
 		const plain = live(80, { sugar: 1 }, { exertion: 0, growth: 1, rest: 0 });
-		expect(composition(spined).keratin).toBeGreaterThan(
-			composition(plain).keratin,
-		);
+		expect(composition(spined).keratin).toBeGreaterThan(composition(plain).keratin);
 	});
 
 	// Scarcity has to be felt, not just declared.
@@ -93,34 +80,18 @@ describe("metabolism", () => {
 	// flesh later, so growth now also calls for protein.
 	it("builds muscle under growth pressure too, not skeleton alone", () => {
 		const grown = live(60, { protein: 1 }, { exertion: 0, growth: 1, rest: 0 });
-		expect(composition(grown).protein).toBeGreaterThan(
-			composition(NEWBORN).protein,
-		);
+		expect(composition(grown).protein).toBeGreaterThan(composition(NEWBORN).protein);
 	});
 
 	it("still builds MORE muscle from exertion than from growth alone, for the same protein diet", () => {
-		const exerted = live(
-			60,
-			{ protein: 1 },
-			{ exertion: 1, growth: 0, rest: 0 },
-		);
+		const exerted = live(60, { protein: 1 }, { exertion: 1, growth: 0, rest: 0 });
 		const grown = live(60, { protein: 1 }, { exertion: 0, growth: 1, rest: 0 });
-		expect(composition(exerted).protein).toBeGreaterThan(
-			composition(grown).protein,
-		);
+		expect(composition(exerted).protein).toBeGreaterThan(composition(grown).protein);
 	});
 
 	it("grows the body over a life that builds tissue", () => {
-		const young = live(
-			5,
-			{ protein: 1, mineral: 0.5 },
-			{ exertion: 1, growth: 1, rest: 0 },
-		);
-		const old = live(
-			100,
-			{ protein: 1, mineral: 0.5 },
-			{ exertion: 1, growth: 1, rest: 0 },
-		);
+		const young = live(5, { protein: 1, mineral: 0.5 }, { exertion: 1, growth: 1, rest: 0 });
+		const old = live(100, { protein: 1, mineral: 0.5 }, { exertion: 1, growth: 1, rest: 0 });
 		expect(bodyMass(old)).toBeGreaterThan(bodyMass(young));
 	});
 
@@ -132,23 +103,15 @@ describe("metabolism", () => {
 	});
 
 	it("keeps composition normalised whatever the diet", () => {
-		for (const food of [
-			{ sugar: 1 },
-			{ protein: 3, lipid: 2 },
-			{ mineral: 9 },
-		]) {
-			const c = composition(
-				live(30, food, { exertion: 1, growth: 1, rest: 1 }),
-			);
+		for (const food of [{ sugar: 1 }, { protein: 3, lipid: 2 }, { mineral: 9 }]) {
+			const c = composition(live(30, food, { exertion: 1, growth: 1, rest: 1 }));
 			const total = Object.values(c).reduce((a, b) => a + b, 0);
 			expect(total).toBeCloseTo(1, 5);
 		}
 	});
 
 	it("colours a body from the elements it is actually made of", () => {
-		const bug = composition(
-			live(60, { chitin: 1 }, { exertion: 0, growth: 1, rest: 0 }),
-		);
+		const bug = composition(live(60, { chitin: 1 }, { exertion: 0, growth: 1, rest: 0 }));
 		const blob = composition(live(60, { sugar: 1 }, IDLE));
 		expect(compositionColor(bug)).toMatch(/^#[0-9a-f]{6}$/);
 		expect(compositionColor(bug)).not.toBe(compositionColor(blob));
@@ -172,11 +135,7 @@ describe("metabolism", () => {
 		expect(() =>
 			metabolise(partial, { protein: 1 }, { exertion: 1, growth: 1, rest: 0 }),
 		).not.toThrow();
-		const next = metabolise(
-			partial,
-			{ protein: 1 },
-			{ exertion: 1, growth: 1, rest: 0 },
-		);
+		const next = metabolise(partial, { protein: 1 }, { exertion: 1, growth: 1, rest: 0 });
 		expect(Object.values(next.tissue).every(Number.isFinite)).toBe(true);
 	});
 
@@ -201,6 +160,44 @@ describe("metabolism", () => {
 		);
 		expect(Object.values(worked.tissue).every(Number.isFinite)).toBe(true);
 	});
+
+	it("canonicalises partial state before returning it", () => {
+		const partial = {
+			tissue: { protein: 1 } as unknown as MetabolicState["tissue"],
+			reserve: 0,
+		};
+		expect(metabolise(partial, {}, IDLE).tissue).toEqual({
+			...EMPTY_COMPOSITION,
+			protein: expect.any(Number),
+		});
+	});
+
+	it("rejects malformed direct inputs with argument-specific errors", () => {
+		expect(() =>
+			metabolise({ tissue: { ...NEWBORN.tissue, protein: Number.NaN }, reserve: 0 }, {}, IDLE),
+		).toThrow(/metabolise: state\.tissue\.protein must be a finite number/);
+		expect(() => metabolise(NEWBORN, { mystery: 1 } as never, IDLE)).toThrow(
+			/metabolise: food\.mystery is not a known tissue/,
+		);
+		expect(() => metabolise(NEWBORN, {}, { ...IDLE, exertion: -1 })).toThrow(
+			/metabolise: activity\.exertion cannot be negative/,
+		);
+		expect(() => metabolise(NEWBORN, {}, undefined as never)).toThrow(
+			/metabolise: activity must be an object/,
+		);
+		expect(() => metabolise(NEWBORN, {}, IDLE, "Fe" as never)).toThrow(
+			/metabolise: backbone must be C, Si, or S/,
+		);
+	});
+
+	it("validates state in composition and mass helpers too", () => {
+		const invalid = {
+			tissue: { ...NEWBORN.tissue, lipid: Number.POSITIVE_INFINITY },
+			reserve: 0,
+		};
+		expect(() => composition(invalid)).toThrow(/composition: state\.tissue\.lipid/);
+		expect(() => bodyMass(invalid)).toThrow(/bodyMass: state\.tissue\.lipid/);
+	});
 });
 
 /**
@@ -217,17 +214,8 @@ describe("demand follows backbone chemistry", () => {
 	const EXERT = { exertion: 1, growth: 0.3, rest: 0 };
 
 	it("leaves carbon worlds exactly as tuned — the default and every existing caller", () => {
-		const carbonImplicit = live(
-			60,
-			{ mineral: 1, chitin: 1, keratin: 1 },
-			GROW,
-		);
-		const carbonExplicit = liveOn(
-			60,
-			{ mineral: 1, chitin: 1, keratin: 1 },
-			GROW,
-			"C",
-		);
+		const carbonImplicit = live(60, { mineral: 1, chitin: 1, keratin: 1 }, GROW);
+		const carbonExplicit = liveOn(60, { mineral: 1, chitin: 1, keratin: 1 }, GROW, "C");
 		expect(carbonExplicit).toEqual(carbonImplicit);
 	});
 
@@ -238,25 +226,19 @@ describe("demand follows backbone chemistry", () => {
 	// wanting the maximally expensive skeleton regardless of what its own
 	// chemistry can practically supply.
 	it("calls for less chitin on a backbone where chitin costs more to build", () => {
-		expect(growthCost("chitin", "Si")).toBeGreaterThan(
-			growthCost("chitin", "C"),
-		);
+		expect(growthCost("chitin", "Si")).toBeGreaterThan(growthCost("chitin", "C"));
 
 		const carbonBug = liveOn(60, { chitin: 1 }, GROW, "C");
 		const siliconBug = liveOn(60, { chitin: 1 }, GROW, "Si");
 
-		expect(composition(siliconBug).chitin).toBeLessThan(
-			composition(carbonBug).chitin,
-		);
+		expect(composition(siliconBug).chitin).toBeLessThan(composition(carbonBug).chitin);
 	});
 
 	it("calls for less keratin on a costlier backbone, same shape as chitin", () => {
 		const carbonSpined = liveOn(80, { keratin: 1 }, GROW, "C");
 		const siliconSpined = liveOn(80, { keratin: 1 }, GROW, "Si");
 
-		expect(composition(siliconSpined).keratin).toBeLessThan(
-			composition(carbonSpined).keratin,
-		);
+		expect(composition(siliconSpined).keratin).toBeLessThan(composition(carbonSpined).keratin);
 	});
 
 	it("carries the same structural shift into exertion's mineral demand, not only growth's", () => {
@@ -268,10 +250,7 @@ describe("demand follows backbone chemistry", () => {
 		const carbonAthlete = liveOn(60, { mineral: 1 }, EXERT, "C");
 		const siliconAthlete = liveOn(60, { mineral: 1 }, EXERT, "Si");
 
-		expect(composition(siliconAthlete).mineral).toBeCloseTo(
-			composition(carbonAthlete).mineral,
-			6,
-		);
+		expect(composition(siliconAthlete).mineral).toBeCloseTo(composition(carbonAthlete).mineral, 6);
 	});
 
 	// Mineral is P2O8Mg3 — no carbon atom for asBackbone to substitute — so its
@@ -282,10 +261,7 @@ describe("demand follows backbone chemistry", () => {
 	it("leaves mineral demand untouched by backbone, since mineral has no carbon to substitute", () => {
 		const carbon = liveOn(60, { mineral: 1 }, GROW, "C");
 		const silicon = liveOn(60, { mineral: 1 }, GROW, "Si");
-		expect(composition(silicon).mineral).toBeCloseTo(
-			composition(carbon).mineral,
-			6,
-		);
+		expect(composition(silicon).mineral).toBeCloseTo(composition(carbon).mineral, 6);
 	});
 });
 
@@ -305,9 +281,7 @@ describe("rest and exertion", () => {
 	const STILL = { exertion: 0, growth: 0, rest: 0 };
 
 	it("banks lipid while resting", () => {
-		expect(metabolise(FED, {}, REST).tissue.lipid).toBeGreaterThan(
-			FED.tissue.lipid,
-		);
+		expect(metabolise(FED, {}, REST).tissue.lipid).toBeGreaterThan(FED.tissue.lipid);
 	});
 
 	it("banks nothing while merely idle", () => {
@@ -348,12 +322,8 @@ describe("rest and exertion", () => {
  */
 describe("readMetabolicState", () => {
 	it("round-trips a real, previously-saved state", () => {
-		const saved = JSON.stringify(
-			live(10, { protein: 1 }, { exertion: 1, growth: 0.3, rest: 0 }),
-		);
-		expect(readMetabolicState(saved)).toEqual(
-			JSON.parse(saved) as MetabolicState,
-		);
+		const saved = JSON.stringify(live(10, { protein: 1 }, { exertion: 1, growth: 0.3, rest: 0 }));
+		expect(readMetabolicState(saved)).toEqual(JSON.parse(saved) as MetabolicState);
 	});
 
 	it("falls back to a newborn when there is nothing to load", () => {
@@ -374,6 +344,68 @@ describe("readMetabolicState", () => {
 	it("falls back to a newborn for well-formed JSON missing the tissue field", () => {
 		expect(readMetabolicState(JSON.stringify({ reserve: 5 }))).toEqual(NEWBORN);
 	});
+
+	it("migrates a partial legacy tissue record and missing reserve into the complete schema", () => {
+		expect(readMetabolicState(JSON.stringify({ tissue: { protein: 4 } }))).toEqual({
+			tissue: { ...EMPTY_COMPOSITION, protein: 4 },
+			reserve: 0,
+		});
+	});
+
+	it.each([
+		null,
+		[],
+		{},
+		{ tissue: [] },
+		{ tissue: {} },
+		{ tissue: { protein: null }, reserve: 0 },
+		{ tissue: { protein: -1 }, reserve: 0 },
+		{ tissue: { futureTissue: 1 }, reserve: 0 },
+		{ tissue: { protein: 1 }, reserve: null },
+		{ tissue: { protein: 1 }, reserve: -1 },
+	])("falls back for well-formed but invalid persisted data: %j", (saved) => {
+		expect(readMetabolicState(JSON.stringify(saved))).toEqual(NEWBORN);
+	});
+
+	it("returns a fresh fallback instead of exposing the exported newborn object's tissue", () => {
+		const first = readMetabolicState(undefined);
+		first.tissue.sugar = 999;
+		first.reserve = 999;
+
+		expect(readMetabolicState(undefined)).toEqual(NEWBORN);
+		expect(NEWBORN.tissue.sugar).toBe(2);
+		expect(NEWBORN.reserve).toBe(0);
+	});
+});
+
+describe("writeMetabolicState", () => {
+	it("provides a validated round trip for a real evolved state", () => {
+		const state = live(10, { protein: 1 }, { exertion: 1, growth: 0.3, rest: 0 });
+		expect(readMetabolicState(writeMetabolicState(state))).toEqual(state);
+	});
+
+	it("writes a partial state as a canonical record with every tissue key", () => {
+		const partial = {
+			tissue: { protein: 2 } as unknown as MetabolicState["tissue"],
+			reserve: 1,
+		};
+		expect(JSON.parse(writeMetabolicState(partial))).toEqual({
+			tissue: { ...EMPTY_COMPOSITION, protein: 2 },
+			reserve: 1,
+		});
+	});
+
+	it("rejects invalid state before JSON can turn its NaN into a durable null", () => {
+		expect(() =>
+			writeMetabolicState({
+				tissue: { ...NEWBORN.tissue, protein: Number.NaN },
+				reserve: 0,
+			}),
+		).toThrow(/writeMetabolicState: state\.tissue\.protein must be a finite number/);
+		expect(() => writeMetabolicState({ tissue: NEWBORN.tissue, reserve: -1 })).toThrow(
+			/writeMetabolicState: state\.reserve cannot be negative/,
+		);
+	});
 });
 
 /**
@@ -383,18 +415,12 @@ describe("readMetabolicState", () => {
  */
 describe("bodyMassKg", () => {
 	it("is bodyMass scaled by the documented per-tissue-unit constant", () => {
-		const s = live(
-			20,
-			{ protein: 1, mineral: 0.4 },
-			{ exertion: 1, growth: 0.3, rest: 0 },
-		);
+		const s = live(20, { protein: 1, mineral: 0.4 }, { exertion: 1, growth: 0.3, rest: 0 });
 		expect(bodyMassKg(s)).toBeCloseTo(bodyMass(s) * KG_PER_TISSUE_UNIT, 12);
 	});
 
 	it("is zero for a state with no tissue", () => {
-		expect(
-			bodyMassKg({ tissue: { ...NEWBORN.tissue }, reserve: 0 }),
-		).toBeGreaterThanOrEqual(0);
+		expect(bodyMassKg({ tissue: { ...NEWBORN.tissue }, reserve: 0 })).toBeGreaterThanOrEqual(0);
 	});
 
 	it("stays finite across a long life", () => {

@@ -34,16 +34,13 @@ describe("pair is bilateral about the body axis", () => {
 
 	function sides(p: Path) {
 		const subpaths = p.shapes.filter(
-			(s): s is Extract<(typeof p.shapes)[number], SubPath> =>
-				s.kind === "subpath",
+			(s): s is Extract<(typeof p.shapes)[number], SubPath> => s.kind === "subpath",
 		);
 		return subpaths.map((s) => [s.start, ...s.segments.map((g) => g.to)]);
 	}
 
 	it("puts the two members on opposite sides of the body", () => {
-		const [right, left] = sides(
-			pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }),
-		);
+		const [right, left] = sides(pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }));
 		expect(right?.[0]?.y).toBeGreaterThan(0);
 		expect(left?.[0]?.y).toBeLessThan(0);
 	});
@@ -51,17 +48,13 @@ describe("pair is bilateral about the body axis", () => {
 	// The failure this pins: both members landed at the same Y, separated in X,
 	// which reads as a front leg and a back leg rather than a left and a right.
 	it("keeps both members at the same position along the body", () => {
-		const [right, left] = sides(
-			pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }),
-		);
+		const [right, left] = sides(pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }));
 		expect(right?.[0]?.x).toBeCloseTo(left?.[0]?.x ?? Number.NaN, 10);
 		expect(right?.[0]?.x).toBeCloseTo(ATTACHMENT.x, 10);
 	});
 
 	it("mirrors the whole limb, not only its attachment", () => {
-		const [right, left] = sides(
-			pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }),
-		);
+		const [right, left] = sides(pair(limb, { attachment: ATTACHMENT, part: "leg", siteIndex: 0 }));
 		// The limb extends away from the body on each side.
 		expect(right?.[1]?.y).toBeGreaterThan(right?.[0]?.y ?? 0);
 		expect(left?.[1]?.y).toBeLessThan(left?.[0]?.y ?? 0);

@@ -1,6 +1,6 @@
-import { EMPTY_COMPOSITION } from "../../chem/index.js";
-import type { Composition } from "../../chem/index.js";
 import { describe, expect, it } from "vitest";
+import type { Composition } from "../../chem/index.js";
+import { EMPTY_COMPOSITION } from "../../chem/index.js";
 import { NO_DIET_HISTORY, recordMeal } from "../dietHistory";
 import { derivePigments } from "../pigments";
 

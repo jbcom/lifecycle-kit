@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bounds, type Path } from "../../path.js";
-import {
-	mirrorX,
-	mirrorY,
-	rotateTurns,
-	scale,
-	translate,
-} from "../../rules/transform.js";
+import { mirrorX, mirrorY, rotateTurns, scale, translate } from "../../rules/transform.js";
 
 const dot = (x: number, y: number): Path => ({
 	shapes: [{ kind: "ellipse", center: { x, y }, radiusX: 1, radiusY: 2 }],
@@ -83,10 +77,7 @@ describe("transform", () => {
 		if (!box || !rotated) return;
 		// A point at (3,4) is distance 5 from the origin; the ellipse's own
 		// centre must still be distance 5 out after an arbitrary rotation.
-		const centerDist = (b: {
-			min: { x: number; y: number };
-			max: { x: number; y: number };
-		}) => {
+		const centerDist = (b: { min: { x: number; y: number }; max: { x: number; y: number } }) => {
 			const cx = (b.min.x + b.max.x) / 2;
 			const cy = (b.min.y + b.max.y) / 2;
 			return Math.hypot(cx, cy);

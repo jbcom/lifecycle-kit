@@ -147,9 +147,7 @@ describe("branch", () => {
 		});
 		const groups = groupByPart(result);
 		expect(groups.every((g) => g.part === "twig")).toBe(true);
-		expect(groups.reduce((n, g) => n + g.shapes.length, 0)).toBe(
-			result.shapes.length,
-		);
+		expect(groups.reduce((n, g) => n + g.shapes.length, 0)).toBe(result.shapes.length);
 	});
 
 	// CONTINUITY ASSAY: sweeping angle produces no cliff in the overall extent.

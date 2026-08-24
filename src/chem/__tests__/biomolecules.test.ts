@@ -44,9 +44,7 @@ describe("biomolecules", () => {
 		});
 
 		it("reads a body as its dominant tissue", () => {
-			expect(
-				dominantTissue({ ...EMPTY_COMPOSITION, chitin: 0.6, protein: 0.4 }),
-			).toBe("chitin");
+			expect(dominantTissue({ ...EMPTY_COMPOSITION, chitin: 0.6, protein: 0.4 })).toBe("chitin");
 		});
 
 		/**
@@ -66,16 +64,28 @@ describe("biomolecules", () => {
 			expect(dominantTissue(noSugar)).toBe("chitin");
 		});
 
-		it("colours a body from the elements it is made of", () => {
-			expect(compositionColor({ ...EMPTY_COMPOSITION, protein: 1 })).toMatch(
-				/^#[0-9a-f]{6}$/i,
+		it("ignores forward-compatible unknown tissues instead of returning an invalid id", () => {
+			const future = {
+				...EMPTY_COMPOSITION,
+				protein: 1,
+				futureTissue: 99,
+			} as typeof EMPTY_COMPOSITION;
+			expect(dominantTissue(future)).toBe("protein");
+			expect(normalise(future).protein).toBe(1);
+		});
+
+		it("rejects a non-finite tissue before comparison", () => {
+			expect(() => dominantTissue({ ...EMPTY_COMPOSITION, protein: Number.NaN })).toThrow(
+				/dominantTissue: c\.protein must be a finite number/,
 			);
 		});
 
+		it("colours a body from the elements it is made of", () => {
+			expect(compositionColor({ ...EMPTY_COMPOSITION, protein: 1 })).toMatch(/^#[0-9a-f]{6}$/i);
+		});
+
 		it("gives an empty body a fallback colour", () => {
-			expect(compositionColor({ ...EMPTY_COMPOSITION })).toMatch(
-				/^#[0-9a-f]{6}$/i,
-			);
+			expect(compositionColor({ ...EMPTY_COMPOSITION })).toMatch(/^#[0-9a-f]{6}$/i);
 		});
 	});
 });
@@ -122,9 +132,7 @@ describe("backbone substitution", () => {
 	it("merges when the backbone already occurs in the tissue", () => {
 		// Keratin is C5H10N2O3S2 — on a sulfur world the chain joins the S.
 		const keratin = asBackbone("keratin", "S");
-		expect(keratin.S).toBe(
-			BIOMOLECULES.keratin.formula.C + BIOMOLECULES.keratin.formula.S,
-		);
+		expect(keratin.S).toBe(BIOMOLECULES.keratin.formula.C + BIOMOLECULES.keratin.formula.S);
 	});
 
 	it("leaves carbon-free tissue alone whatever the backbone", () => {

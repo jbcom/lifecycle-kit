@@ -17,9 +17,7 @@ import { litness, normalise, shade } from "../light.js";
  */
 describe("shade refuses a colour it cannot read", () => {
 	it("does not turn an unparseable string into black", () => {
-		expect(() => shade("nothex", 0.5)).toThrow(
-			/shade: hex must be a 6-digit colour/,
-		);
+		expect(() => shade("nothex", 0.5)).toThrow(/shade: hex must be a 6-digit colour/);
 	});
 
 	it("names the argument instead of failing on a property read", () => {
@@ -71,14 +69,8 @@ describe("litness survives a bad ambient term", () => {
 
 	/** A missing ambient must still let the fully-lit side reach near 1, not be silently dimmed. */
 	it("does not clamp the lit side just because ambient was bad", () => {
-		const bad = litness(
-			{ x: 0, y: -1 },
-			{ direction: { x: 0, y: 1 }, ambient: Number.NaN },
-		);
-		const good = litness(
-			{ x: 0, y: -1 },
-			{ direction: { x: 0, y: 1 }, ambient: 0 },
-		);
+		const bad = litness({ x: 0, y: -1 }, { direction: { x: 0, y: 1 }, ambient: Number.NaN });
+		const good = litness({ x: 0, y: -1 }, { direction: { x: 0, y: 1 }, ambient: 0 });
 		expect(bad).toBeCloseTo(good, 9);
 	});
 });

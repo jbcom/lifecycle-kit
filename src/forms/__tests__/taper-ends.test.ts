@@ -61,9 +61,7 @@ describe("taper ends", () => {
 	it("still comes to a point when it tapers to zero", () => {
 		const [s] = taper({ from: 0.3, to: 0, bulgeAt: 0.5, length: 1 }).shapes;
 		if (s?.kind !== "subpath") throw new Error("expected a subpath");
-		const ends = [s.start, ...s.segments.map((g) => g.to)].filter(
-			(p) => Math.abs(p.x - 1) < 1e-9,
-		);
+		const ends = [s.start, ...s.segments.map((g) => g.to)].filter((p) => Math.abs(p.x - 1) < 1e-9);
 		expect(ends.every((p) => Math.abs(p.y) < 1e-9)).toBe(true);
 	});
 });

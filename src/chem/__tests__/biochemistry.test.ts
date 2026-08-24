@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	backboneScore,
-	chainStability,
-	deriveBiochemistry,
-	inBackbone,
-} from "../biochemistry";
+import { backboneScore, chainStability, deriveBiochemistry, inBackbone } from "../biochemistry";
 import { CATENATION, HYDROLYSIS } from "../elements";
 
 /**
@@ -34,12 +29,8 @@ describe("biochemistry", () => {
 		// The stronger catenator survives further, everywhere water isn't the
 		// deciding factor.
 		it("favours the stronger catenator when dry", () => {
-			expect(chainStability("C", 600)).toBeGreaterThan(
-				chainStability("Si", 600),
-			);
-			expect(chainStability("C", 200)).toBeGreaterThan(
-				chainStability("Si", 200),
-			);
+			expect(chainStability("C", 600)).toBeGreaterThan(chainStability("Si", 600));
+			expect(chainStability("C", 200)).toBeGreaterThan(chainStability("Si", 200));
 		});
 
 		// Si-O-Si hydrolyses; this is why Earth's silicon is silicate rock.
@@ -49,14 +40,23 @@ describe("biochemistry", () => {
 
 		it("spares carbon from hydrolysis", () => {
 			// No notch across the liquid-water range for carbon.
-			expect(chainStability("C", 288)).toBeGreaterThan(
-				chainStability("C", 400),
-			);
+			expect(chainStability("C", 288)).toBeGreaterThan(chainStability("C", 400));
 		});
 
 		it("restores silicon once the water boils off", () => {
-			expect(chainStability("Si", 400)).toBeGreaterThan(
-				chainStability("Si", 288) * 10,
+			expect(chainStability("Si", 400)).toBeGreaterThan(chainStability("Si", 288) * 10);
+		});
+
+		it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
+			"rejects a non-physical absolute temperature: %s",
+			(kelvin) => {
+				expect(() => chainStability("C", kelvin)).toThrow(/chainStability: kelvin/);
+			},
+		);
+
+		it("rejects an unsupported backbone from untyped JavaScript", () => {
+			expect(() => chainStability("Fe" as never, 288)).toThrow(
+				/chainStability: symbol must be C, Si, or S/,
 			);
 		});
 	});
@@ -98,9 +98,7 @@ describe("biochemistry", () => {
 
 		it("reports why a backbone won", () => {
 			expect(deriveBiochemistry({}, 288).rationale).toMatch(/[Cc]arbon/);
-			expect(deriveBiochemistry({ Si: 30 }, 500).rationale).toMatch(
-				/[Ss]ilicon/,
-			);
+			expect(deriveBiochemistry({ Si: 30 }, 500).rationale).toMatch(/[Ss]ilicon/);
 		});
 
 		it("explains silicon by the absence of water", () => {
@@ -155,9 +153,7 @@ describe("biochemistry", () => {
 		// A rationale that restates the result teaches nothing. Carbon chaining
 		// strongly is a property of carbon, not of this world.
 		it("does not answer with a tautology about the winner", () => {
-			expect(deriveBiochemistry({}, 288).rationale).not.toMatch(
-				/chains to itself more strongly/i,
-			);
+			expect(deriveBiochemistry({}, 288).rationale).not.toMatch(/chains to itself more strongly/i);
 		});
 
 		it("is deterministic for the same world", () => {
@@ -198,6 +194,21 @@ describe("biochemistry", () => {
 		it("scores an absent element at zero", () => {
 			expect(backboneScore("Si", { Si: 0 }, 500)).toBe(0);
 		});
+
+		it("rejects invalid world abundances before they can reverse or poison a score", () => {
+			expect(() => backboneScore("C", { C: -1 }, 288)).toThrow(
+				/backboneScore: worldAbundance\.C cannot be negative/,
+			);
+			expect(() => deriveBiochemistry({ Si: Number.NaN }, 500)).toThrow(
+				/deriveBiochemistry: worldAbundance\.Si must be a finite number/,
+			);
+		});
+
+		it("rejects a missing abundance record with an argument-specific error", () => {
+			expect(() => deriveBiochemistry(undefined as unknown as Record<string, number>, 288)).toThrow(
+				/deriveBiochemistry: worldAbundance must be an object, got undefined/,
+			);
+		});
 	});
 
 	// A tissue means the same thing structurally on any world; only the chain
@@ -215,6 +226,12 @@ describe("biochemistry", () => {
 
 		it("leaves a template without a placeholder alone", () => {
 			expect(inBackbone({ H: 2, O: 1 }, "Si")).toEqual({ H: 2, O: 1 });
+		});
+
+		it("rejects an unsupported substitution backbone", () => {
+			expect(() => inBackbone({ X: 1 }, "Fe" as never)).toThrow(
+				/inBackbone: backbone must be C, Si, or S/,
+			);
 		});
 	});
 });

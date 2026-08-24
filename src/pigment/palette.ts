@@ -1,10 +1,10 @@
 import { type Composition, compositionColor } from "../chem/index.js";
 import type { PigmentConcentrations } from "./pigments.js";
-import { object, unitRange } from "./validate.js";
+import { composition as checkComposition, object, unitRange } from "./validate.js";
 
 /**
  * A palette RAMP: several colour stops from shadow to highlight, rather than
- * one flat tint. `lifecycle-assemblage` needs a ramp to shade a lit,
+ * one flat tint. The assemblage stage needs a ramp to shade a lit,
  * self-shadowing form with — see
  * `docs/superpowers/specs/2026-08-08-compositional-rendering-design.md`
  * §"Surface is the same computation, not a coat of paint".
@@ -27,10 +27,7 @@ export interface PaletteRamp {
 }
 
 /** Real absorption-family colour each pigment tints toward, as RGB 0..255. */
-const PIGMENT_TINT: Record<
-	keyof PigmentConcentrations,
-	[number, number, number]
-> = {
+const PIGMENT_TINT: Record<keyof PigmentConcentrations, [number, number, number]> = {
 	melanin: [61, 43, 31], // eumelanin: dark brown
 	carotenoid: [232, 122, 26], // beta-carotene: orange
 	pterin: [235, 215, 60], // xanthopterin: yellow
@@ -60,15 +57,9 @@ function pigmentStop(baseHex: string, pigments: PigmentConcentrations): string {
 	// actually hit against the published package. Driving the loop from the
 	// table makes the set of pigments a fact of this module rather than a
 	// promise about the argument, and an unknown key is simply not consulted.
-	for (const name of Object.keys(PIGMENT_TINT) as Array<
-		keyof PigmentConcentrations
-	>) {
+	for (const name of Object.keys(PIGMENT_TINT) as Array<keyof PigmentConcentrations>) {
 		const tint = PIGMENT_TINT[name];
-		const concentration = unitRange(
-			"paletteRamp",
-			`pigments.${name}`,
-			pigments[name],
-		);
+		const concentration = unitRange("paletteRamp", `pigments.${name}`, pigments[name]);
 		if (concentration <= 0) continue;
 		r += tint[0] * concentration;
 		g += tint[1] * concentration;
@@ -83,13 +74,12 @@ function shade(hex: string, t: number): string {
 	const { r, g, b } = hexToRgb(hex);
 	const target = t < 0 ? 0 : 255;
 	const amount = Math.abs(t);
-	const mix = (channel: number) =>
-		Math.round(channel + (target - channel) * amount);
+	const mix = (channel: number) => Math.round(channel + (target - channel) * amount);
 	return `#${toHexByte(mix(r))}${toHexByte(mix(g))}${toHexByte(mix(b))}`;
 }
 
 /**
- * Build the palette ramp `lifecycle-assemblage` shades a form with.
+ * Build the palette ramp the assemblage stage shades a form with.
  *
  * `surfaceOf`-style metallic/roughness/opacity are element-mass-weighted from
  * the same composition, so a mineral-rich body is genuinely glossier and a
@@ -101,23 +91,15 @@ export function paletteRamp(
 	pigments: PigmentConcentrations,
 	surface: SurfaceProperties,
 ): PaletteRamp {
-	object("paletteRamp", "composition", composition);
+	checkComposition("paletteRamp", "composition", composition);
 	object("paletteRamp", "pigments", pigments);
 	object("paletteRamp", "surface", surface);
 
 	// Surface gets the same treatment as the pigments: these three land
-	// directly in `lifecycle-assemblage`'s light arithmetic, where a NaN
+	// directly in the assemblage stage's light arithmetic, where a NaN
 	// becomes a "#NaNNaNNaN" fill and the creature disappears.
-	const metallic = unitRange(
-		"paletteRamp",
-		"surface.metallic",
-		surface.metallic,
-	);
-	const roughness = unitRange(
-		"paletteRamp",
-		"surface.roughness",
-		surface.roughness,
-	);
+	const metallic = unitRange("paletteRamp", "surface.metallic", surface.metallic);
+	const roughness = unitRange("paletteRamp", "surface.roughness", surface.roughness);
 	const opacity = unitRange("paletteRamp", "surface.opacity", surface.opacity);
 
 	const base = compositionColor(composition);

@@ -37,10 +37,7 @@ export const NO_DIET_HISTORY: DietHistory = { plantAverage: 0, meals: 0 };
 const MIN_WEIGHT = 0.08;
 
 /** Fold one meal's plant-matter fraction into the running average. */
-export function recordMeal(
-	history: DietHistory,
-	plantFraction: MealPlantFraction,
-): DietHistory {
+export function recordMeal(history: DietHistory, plantFraction: MealPlantFraction): DietHistory {
 	object("recordMeal", "history", history);
 
 	// The average is the state, which is exactly why a bad value here is worse
@@ -48,11 +45,7 @@ export function recordMeal(
 	// `plantAverage` NaN forever, and every future meal folds into a number
 	// that can never recover. It is checked before it can be absorbed.
 	const fraction = unitRange("recordMeal", "plantFraction", plantFraction);
-	const average = unitRange(
-		"recordMeal",
-		"history.plantAverage",
-		history.plantAverage,
-	);
+	const average = unitRange("recordMeal", "history.plantAverage", history.plantAverage);
 	const meals = count("recordMeal", "history.meals", history.meals);
 
 	const weight = Math.max(MIN_WEIGHT, 1 / (meals + 1));

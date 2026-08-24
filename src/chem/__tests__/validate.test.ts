@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { inBackbone } from "../biochemistry.js";
-import {
-	compositionColor,
-	EMPTY_COMPOSITION,
-	normalise,
-} from "../biomolecules.js";
+import { compositionColor, EMPTY_COMPOSITION, normalise } from "../biomolecules.js";
 
 /**
  * The assay for this package's most-cited bug, at its source.
@@ -23,9 +19,9 @@ import {
 describe("compositionColor cannot emit a NaN colour", () => {
 	/** The literal regression. This string must never be returned again. */
 	it("never returns the #NaNNaNNaN that made creatures vanish", () => {
-		expect(() =>
-			compositionColor({ ...EMPTY_COMPOSITION, protein: Number.NaN }),
-		).toThrow(/compositionColor: c\.protein must be a finite number/);
+		expect(() => compositionColor({ ...EMPTY_COMPOSITION, protein: Number.NaN })).toThrow(
+			/compositionColor: c\.protein must be a finite number/,
+		);
 	});
 
 	/**
@@ -41,9 +37,9 @@ describe("compositionColor cannot emit a NaN colour", () => {
 		const notANumber = Number.NaN;
 		expect(notANumber <= 0).toBe(false);
 		expect(notANumber > 0).toBe(false);
-		expect(() =>
-			compositionColor({ ...EMPTY_COMPOSITION, chitin: Number.NaN }),
-		).toThrow(/c\.chitin/);
+		expect(() => compositionColor({ ...EMPTY_COMPOSITION, chitin: Number.NaN })).toThrow(
+			/c\.chitin/,
+		);
 	});
 
 	it("rejects Infinity and a negative fraction", () => {
@@ -53,21 +49,19 @@ describe("compositionColor cannot emit a NaN colour", () => {
 				lipid: Number.POSITIVE_INFINITY,
 			}),
 		).toThrow(/must be a finite number/);
-		expect(() =>
-			compositionColor({ ...EMPTY_COMPOSITION, lipid: -0.5 }),
-		).toThrow(/c\.lipid cannot be negative/);
+		expect(() => compositionColor({ ...EMPTY_COMPOSITION, lipid: -0.5 })).toThrow(
+			/c\.lipid cannot be negative/,
+		);
 	});
 
 	it("names the function and argument when handed nothing", () => {
-		expect(() =>
-			compositionColor(undefined as unknown as typeof EMPTY_COMPOSITION),
-		).toThrow(/compositionColor: c must be an object, got undefined/);
+		expect(() => compositionColor(undefined as unknown as typeof EMPTY_COMPOSITION)).toThrow(
+			/compositionColor: c must be an object, got undefined/,
+		);
 	});
 
 	it("still returns a real colour for a real composition", () => {
-		const hex = compositionColor(
-			normalise({ ...EMPTY_COMPOSITION, protein: 0.5, chitin: 0.5 }),
-		);
+		const hex = compositionColor(normalise({ ...EMPTY_COMPOSITION, protein: 0.5, chitin: 0.5 }));
 		expect(hex).toMatch(/^#[0-9a-f]{6}$/i);
 		expect(hex).not.toContain("NaN");
 	});
@@ -81,9 +75,9 @@ describe("normalise cannot be destroyed by one bad tissue", () => {
 	 * just its own entry.
 	 */
 	it("rejects a single NaN member instead of nulling every field", () => {
-		expect(() =>
-			normalise({ ...EMPTY_COMPOSITION, protein: Number.NaN }),
-		).toThrow(/normalise: raw\.protein must be a finite number/);
+		expect(() => normalise({ ...EMPTY_COMPOSITION, protein: Number.NaN })).toThrow(
+			/normalise: raw\.protein must be a finite number/,
+		);
 	});
 
 	it("rejects a negative fraction rather than normalising it", () => {
@@ -93,9 +87,15 @@ describe("normalise cannot be destroyed by one bad tissue", () => {
 	});
 
 	it("names the argument when handed nothing", () => {
-		expect(() =>
-			normalise(undefined as unknown as typeof EMPTY_COMPOSITION),
-		).toThrow(/normalise: raw must be an object, got undefined/);
+		expect(() => normalise(undefined as unknown as typeof EMPTY_COMPOSITION)).toThrow(
+			/normalise: raw must be an object, got undefined/,
+		);
+	});
+
+	it("rejects an array even though JavaScript reports it as an object", () => {
+		expect(() => normalise([] as unknown as typeof EMPTY_COMPOSITION)).toThrow(
+			/normalise: raw must be an object, got an array/,
+		);
 	});
 
 	/** The documented all-zero behaviour is untouched. */

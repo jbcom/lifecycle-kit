@@ -1,16 +1,12 @@
-import {
-	concatPaths,
-	EMPTY_PATH,
-	type Path,
-	tagPath,
-	type Vec2,
-} from "../path.js";
+import { concatPaths, EMPTY_PATH, type Path, tagPath, type Vec2 } from "../path.js";
 import {
 	params as checkParams,
 	path as checkPath,
 	count,
 	finite,
 	partName,
+	positiveUnit,
+	unitRange,
 } from "../validate.js";
 import { rotateTurns, scale, translate } from "./transform.js";
 
@@ -52,14 +48,38 @@ export interface BranchParams {
 export function branch(unit: Path, params: BranchParams): Path {
 	checkParams("branch", params);
 	checkPath("branch", "unit", unit);
-	count("branch", "depth", params.depth);
-	count("branch", "splits", params.splits);
+	const depth = count("branch", "depth", params.depth);
+	const splits = count("branch", "splits", params.splits);
 	finite("branch", "angle", params.angle);
-	finite("branch", "shrink", params.shrink);
-	finite("branch", "attachAt", params.attachAt);
+	positiveUnit("branch", "shrink", params.shrink);
+	unitRange("branch", "attachAt", params.attachAt);
 	partName("branch", "part", params.part);
+	checkBranchSize(depth, splits);
 
 	return branchAt(unit, params, params.depth, 1, "root");
+}
+
+const MAX_BRANCH_DEPTH = 64;
+const MAX_BRANCH_SHAPES = 10_000;
+
+/** Refuse exponential inputs before recursion consumes the process. */
+function checkBranchSize(depth: number, splits: number): void {
+	if (depth > MAX_BRANCH_DEPTH) {
+		throw new RangeError(`branch: depth cannot exceed ${MAX_BRANCH_DEPTH}, got ${depth}`);
+	}
+	let nodes = 0;
+	let level = 1;
+	for (let generation = 0; generation < depth; generation += 1) {
+		nodes += level;
+		if (nodes > MAX_BRANCH_SHAPES) {
+			throw new RangeError(
+				`branch: parameters would emit more than ${MAX_BRANCH_SHAPES} branch copies`,
+			);
+		}
+		if (splits === 0) level = 0;
+		else if (level > MAX_BRANCH_SHAPES / splits) level = MAX_BRANCH_SHAPES + 1;
+		else level *= splits;
+	}
 }
 
 function branchAt(
@@ -71,11 +91,7 @@ function branchAt(
 ): Path {
 	if (depth <= 0) return EMPTY_PATH;
 
-	const self = tagPath(
-		scale(unit, currentScale),
-		params.part,
-		hashIndex(pathId),
-	);
+	const self = tagPath(scale(unit, currentScale), params.part, hashIndex(pathId));
 
 	if (depth === 1) return self;
 
@@ -86,12 +102,9 @@ function branchAt(
 		// Fan symmetrically about the parent's own direction: splits=2 gives
 		// +angle/2 and -angle/2, so a fork looks like a fork rather than a
 		// kink to one side.
-		const fanTurn =
-			params.splits === 1 ? 0 : params.angle * (i / (params.splits - 1) - 0.5);
+		const fanTurn = params.splits === 1 ? 0 : params.angle * (i / (params.splits - 1) - 0.5);
 		const childUnit = translate(rotateTurns(unit, fanTurn), attachPoint);
-		children.push(
-			branchAt(childUnit, params, depth - 1, childScale, `${pathId}.${i}`),
-		);
+		children.push(branchAt(childUnit, params, depth - 1, childScale, `${pathId}.${i}`));
 	}
 
 	return concatPaths(self, ...children);

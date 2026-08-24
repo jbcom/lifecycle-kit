@@ -20,13 +20,7 @@ import {
  * contract is wrong.
  */
 
-const line = (
-	x0: number,
-	y0: number,
-	x1: number,
-	y1: number,
-	closed = false,
-): Path => ({
+const line = (x0: number, y0: number, x1: number, y1: number, closed = false): Path => ({
 	shapes: [
 		{
 			kind: "subpath",
@@ -358,18 +352,16 @@ describe("the composition operators refuse a malformed path", () => {
 	 * the message has to tell you.
 	 */
 	it("names the offending argument by position", () => {
-		expect(() =>
-			concatPaths(line(0, 0, 1, 1), undefined as unknown as Path),
-		).toThrow(/concatPaths: argument 1 must be a Path/);
-		expect(() => concatPaths(undefined as unknown as Path)).toThrow(
-			/argument 0 .* got undefined/,
+		expect(() => concatPaths(line(0, 0, 1, 1), undefined as unknown as Path)).toThrow(
+			/concatPaths: argument 1 must be a Path/,
 		);
+		expect(() => concatPaths(undefined as unknown as Path)).toThrow(/argument 0 .* got undefined/);
 	});
 
 	it("rejects an object that is not a path", () => {
-		expect(() =>
-			concatPaths({ shapes: "not an array" } as unknown as Path),
-		).toThrow(/must be a Path with a shapes array/);
+		expect(() => concatPaths({ shapes: "not an array" } as unknown as Path)).toThrow(
+			/must be a Path with a shapes array/,
+		);
 	});
 
 	/**
@@ -380,9 +372,7 @@ describe("the composition operators refuse a malformed path", () => {
 	 * exercised above.
 	 */
 	it("names null distinctly from an object with no keys", () => {
-		expect(() => concatPaths(null as unknown as Path)).toThrow(
-			/argument 0 .* got null/,
-		);
+		expect(() => concatPaths(null as unknown as Path)).toThrow(/argument 0 .* got null/);
 	});
 
 	/**
@@ -392,15 +382,11 @@ describe("the composition operators refuse a malformed path", () => {
 	 * deserves the more specific "an array" wording rather than "an object ()".
 	 */
 	it("names an array distinctly from an object with no keys", () => {
-		expect(() => concatPaths([] as unknown as Path)).toThrow(
-			/argument 0 .* got an array/,
-		);
+		expect(() => concatPaths([] as unknown as Path)).toThrow(/argument 0 .* got an array/);
 	});
 
 	it("still composes real paths", () => {
-		expect(concatPaths(line(0, 0, 1, 1), line(2, 2, 3, 3)).shapes).toHaveLength(
-			2,
-		);
+		expect(concatPaths(line(0, 0, 1, 1), line(2, 2, 3, 3)).shapes).toHaveLength(2);
 		expect(concatPaths()).toEqual(EMPTY_PATH);
 	});
 
@@ -408,12 +394,10 @@ describe("the composition operators refuse a malformed path", () => {
 		expect(() => tagPath(undefined as unknown as Path, "leg", 0)).toThrow(
 			/tagPath: path must be a Path/,
 		);
-		expect(() => tagPath(line(0, 0, 1, 1), "", 0)).toThrow(
+		expect(() => tagPath(line(0, 0, 1, 1), "", 0)).toThrow(/part must be a non-empty string/);
+		expect(() => tagPath(line(0, 0, 1, 1), undefined as unknown as string, 0)).toThrow(
 			/part must be a non-empty string/,
 		);
-		expect(() =>
-			tagPath(line(0, 0, 1, 1), undefined as unknown as string, 0),
-		).toThrow(/part must be a non-empty string/);
 	});
 
 	/**
@@ -424,9 +408,9 @@ describe("the composition operators refuse a malformed path", () => {
 		expect(() => tagPath(line(0, 0, 1, 1), "leg", -1)).toThrow(
 			/index must be a non-negative whole number/,
 		);
-		expect(() =>
-			tagPath(line(0, 0, 1, 1), "leg", undefined as unknown as number),
-		).toThrow(/index must be a non-negative whole number/);
+		expect(() => tagPath(line(0, 0, 1, 1), "leg", undefined as unknown as number)).toThrow(
+			/index must be a non-negative whole number/,
+		);
 		expect(() => tagPath(line(0, 0, 1, 1), "leg", 1.5)).toThrow(/index/);
 	});
 });
@@ -450,9 +434,7 @@ describe("composition", () => {
 		const a = line(0, 0, 1, 1);
 		const b = line(2, 2, 3, 3);
 		const c = line(4, 4, 5, 5);
-		expect(concatPaths(concatPaths(a, b), c)).toEqual(
-			concatPaths(a, concatPaths(b, c)),
-		);
+		expect(concatPaths(concatPaths(a, b), c)).toEqual(concatPaths(a, concatPaths(b, c)));
 	});
 });
 

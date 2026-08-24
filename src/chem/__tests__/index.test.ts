@@ -49,10 +49,7 @@ describe("the ./chem public entry point", () => {
 		expect(backbone).toBe("Si");
 		const formula = chem.asBackbone("sugar", backbone);
 		expect(chem.molecularMass(formula)).toBeGreaterThan(0);
-		const color = chem.compositionColor(
-			{ ...chem.EMPTY_COMPOSITION, protein: 1 },
-			backbone,
-		);
+		const color = chem.compositionColor({ ...chem.EMPTY_COMPOSITION, protein: 1 }, backbone);
 		expect(color).toMatch(/^#[0-9a-f]{6}$/i);
 	});
 });

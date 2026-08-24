@@ -55,8 +55,8 @@ describe("the ./forms public entry point", () => {
 		});
 		const box = forms.bounds(body);
 		expect(box).not.toBeNull();
-		expect(
-			forms.toSvgDocument(body, { minX: 0, minY: 0, width: 10, height: 10 }),
-		).toContain("<svg");
+		expect(forms.toSvgDocument(body, { minX: 0, minY: 0, width: 10, height: 10 })).toContain(
+			"<svg",
+		);
 	});
 });

@@ -1,8 +1,8 @@
 /**
  * The path description — this package's outward seam.
  *
- * Everything in `lifecycle-forms` produces this type and nothing consumes it
- * here. `lifecycle-assemblage` takes it, lights it and draws it; the games
+ * Everything in the forms stage produces this type and nothing consumes it
+ * here. The assemblage stage takes it, lights it and draws it; applications
  * render it through Pixi `Graphics` or SVG. It is the contract, so it is
  * deliberately small and every field below has to justify itself.
  *
@@ -44,7 +44,7 @@
  * ## 3. Renderable by both Pixi `Graphics` and SVG
  *
  * The segment vocabulary is the intersection of what both back ends do
- * natively, chosen by counting what the fleet's existing procedural renderers
+ * natively, chosen by counting calls across surveyed procedural renderers
  * actually call. Across `concrete-vermin`, `pond-warfare` and
  * `bioluminescent-sea`: `lineTo` 655, `moveTo` 437, `circle` 335, `ellipse`
  * 187, `closePath` 145, `quadraticCurveTo` 134, `bezierCurveTo` 48.
@@ -87,7 +87,7 @@ export interface Vec2 {
 /**
  * A straight line to an absolute point.
  *
- * The single most-used primitive in the fleet's existing renderers (655 calls),
+ * The single most-used primitive in the surveyed renderers (655 calls),
  * which is why it is first.
  */
 export interface LineSegment {
@@ -102,7 +102,7 @@ export interface LineSegment {
  * quadratic has an exact cubic equivalent. Promotion would mean two paths that
  * a consumer wrote differently compare equal, which sounds harmless until a
  * test that meant to pin "this is the cheap curve" silently stops doing so.
- * The fleet calls `quadraticCurveTo` 134 times against `bezierCurveTo` 48, so
+ * The survey found `quadraticCurveTo` 134 times against `bezierCurveTo` 48, so
  * the cheap curve is the common case and deserves to stay legible.
  */
 export interface QuadraticSegment {
@@ -125,7 +125,7 @@ export type Segment = LineSegment | QuadraticSegment | CubicSegment;
  * A run of segments from a starting point.
  *
  * `closed` is explicit and not inferred from whether the last point equals the
- * first. The fleet's renderers call `closePath` 145 times and also draw many
+ * first. The surveyed renderers call `closePath` 145 times and also draw many
  * deliberately open strokes — a tentacle, a filament, a belly stripe — and
  * those two cases differ in how they fill and where they join even when the
  * endpoints coincide. Inferring closure would silently fill a tentacle that
@@ -163,7 +163,7 @@ export interface Ellipse {
 /**
  * Which anatomical part a shape belongs to.
  *
- * A flat label, not a tree. `lifecycle-assemblage` has to put each part in a
+ * A flat label, not a tree. The assemblage stage has to put each part in a
  * depth band, cast a directional light from one part onto the parts behind it,
  * and give each band its own parallax offset. It cannot do any of that against
  * an anonymous list of outlines — it would have to GUESS where one part ends
@@ -194,8 +194,8 @@ export interface PartTag {
  * One drawable outline.
  *
  * Not styled. A shape says where it is and which part it belongs to, never
- * what colour it is — pigment comes from `lifecycle-pigment` and lighting from
- * `lifecycle-assemblage`, both of which derive colour from biology rather than
+ * what colour it is — pigment and lighting come from their respective stages,
+ * both of which derive colour from biology rather than
  * from a form rule picking one. Baking a fill into a rule's output would make
  * `taper` an art director.
  *
@@ -258,11 +258,7 @@ export function concatPaths(...paths: readonly Path[]): Path {
 	// the arguments was wrong — and with a variadic signature, which one it
 	// was is exactly the thing you need to be told.
 	paths.forEach((path, i) => {
-		if (
-			path === null ||
-			typeof path !== "object" ||
-			!Array.isArray(path.shapes)
-		) {
+		if (path === null || typeof path !== "object" || !Array.isArray(path.shapes)) {
 			throw new TypeError(
 				`concatPaths: argument ${i} must be a Path with a shapes array, got ${describeValue(path)}`,
 			);
@@ -276,8 +272,7 @@ function describeValue(value: unknown): string {
 	if (value === null) return "null";
 	if (value === undefined) return "undefined";
 	if (Array.isArray(value)) return "an array";
-	if (typeof value === "object")
-		return `an object (${Object.keys(value as object).join(", ")})`;
+	if (typeof value === "object") return `an object (${Object.keys(value as object).join(", ")})`;
 	return `${typeof value} ${String(value)}`;
 }
 
@@ -290,22 +285,16 @@ function describeValue(value: unknown): string {
  * nested inside a `pair` is still a leg.
  */
 export function tagPath(path: Path, part: string, index: number): Path {
-	if (
-		path === null ||
-		typeof path !== "object" ||
-		!Array.isArray(path.shapes)
-	) {
+	if (path === null || typeof path !== "object" || !Array.isArray(path.shapes)) {
 		throw new TypeError(
 			`tagPath: path must be a Path with a shapes array, got ${describeValue(path)}`,
 		);
 	}
-	// A tag is what `lifecycle-assemblage` groups depth bands by, so an
+	// A tag is what the assemblage stage groups depth bands by, so an
 	// undefined part name would silently merge every mis-tagged shape into one
 	// anatomical part and light them as a single surface.
 	if (typeof part !== "string" || part.length === 0) {
-		throw new TypeError(
-			`tagPath: part must be a non-empty string, got ${describeValue(part)}`,
-		);
+		throw new TypeError(`tagPath: part must be a non-empty string, got ${describeValue(part)}`);
 	}
 	if (!Number.isInteger(index) || index < 0) {
 		throw new RangeError(
@@ -320,7 +309,7 @@ export function tagPath(path: Path, part: string, index: number): Path {
 /**
  * Group a path's shapes into parts, preserving draw order.
  *
- * This is what `lifecycle-assemblage` calls to assign a depth band per part
+ * This is what the assemblage stage calls to assign a depth band per part
  * and light each one against the parts behind it. Shapes with no tag are
  * grouped under `untagged`, so a path built by a rule that says nothing about
  * anatomy still round-trips through the assembler rather than vanishing.
@@ -330,16 +319,14 @@ export function tagPath(path: Path, part: string, index: number): Path {
  * Both matter, because order is draw order and draw order is what a
  * directional light reads as depth.
  */
-export function groupByPart(
-	path: Path,
-): { part: string; index: number; shapes: Shape[] }[] {
+export function groupByPart(path: Path): { part: string; index: number; shapes: Shape[] }[] {
 	const groups: { part: string; index: number; shapes: Shape[] }[] = [];
 	const seen = new Map<string, number>();
 
 	for (const shape of path.shapes) {
 		const part = shape.tag?.part ?? "untagged";
 		const index = shape.tag?.index ?? 0;
-		const key = `${part} ${index}`;
+		const key = `${part}\0${index}`;
 		const existing = seen.get(key);
 		if (existing === undefined) {
 			seen.set(key, groups.length);
@@ -377,9 +364,7 @@ export type Timed<T> = T | ((phase: number) => T);
 
 /** Evaluate a possibly-time-varying parameter at a phase. */
 export function at<T>(value: Timed<T>, phase: number): T {
-	return typeof value === "function"
-		? (value as (phase: number) => T)(phase)
-		: value;
+	return typeof value === "function" ? (value as (phase: number) => T)(phase) : value;
 }
 
 /**
@@ -402,15 +387,13 @@ export function still(path: Path): Animated {
 /**
  * The bounding box of each part, in draw order.
  *
- * `lifecycle-assemblage` needs this to place a part in a depth band and to
+ * The assemblage stage needs this to place a part in a depth band and to
  * know which parts overlap, since a part can only cast a shadow onto one it
  * actually covers. It is deliberately a composition of `groupByPart` and
  * `bounds` rather than a second solver — one exact implementation of the
  * Bézier extrema, used everywhere.
  */
-export function partBounds(
-	path: Path,
-): { part: string; index: number; min: Vec2; max: Vec2 }[] {
+export function partBounds(path: Path): { part: string; index: number; min: Vec2; max: Vec2 }[] {
 	const out: { part: string; index: number; min: Vec2; max: Vec2 }[] = [];
 	for (const group of groupByPart(path)) {
 		const box = bounds({ shapes: group.shapes });
@@ -487,20 +470,10 @@ export function bounds(path: Path): { min: Vec2; max: Vec2 } | null {
 				}
 				include(seg.to.x, seg.to.y);
 			} else {
-				for (const v of cubicExtrema(
-					from.x,
-					seg.control1.x,
-					seg.control2.x,
-					seg.to.x,
-				)) {
+				for (const v of cubicExtrema(from.x, seg.control1.x, seg.control2.x, seg.to.x)) {
 					includeX(v);
 				}
-				for (const v of cubicExtrema(
-					from.y,
-					seg.control1.y,
-					seg.control2.y,
-					seg.to.y,
-				)) {
+				for (const v of cubicExtrema(from.y, seg.control1.y, seg.control2.y, seg.to.y)) {
 					includeY(v);
 				}
 				include(seg.to.x, seg.to.y);
@@ -557,9 +530,7 @@ function cubicExtrema(a: number, b: number, c: number, d: number): number[] {
 	for (const t of roots) {
 		if (t <= 0 || t >= 1) continue;
 		const u = 1 - t;
-		out.push(
-			u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d,
-		);
+		out.push(u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d);
 	}
 	return out;
 }

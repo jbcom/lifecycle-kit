@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	CATENATION,
-	ELEMENTS,
-	HYDROLYSIS,
-	molecularMass,
-	scarcity,
-} from "../elements";
+import { CATENATION, ELEMENTS, HYDROLYSIS, molecularMass, scarcity } from "../elements";
 
 /**
  * `elements.ts` had never had a test file of its own. Everything in it is
@@ -83,6 +77,22 @@ describe("molecularMass", () => {
 		expect(withUnknown).toBe(known);
 		expect(Number.isFinite(withUnknown)).toBe(true);
 	});
+
+	it("rejects non-finite and negative atom counts at the formula boundary", () => {
+		expect(() => molecularMass({ H: Number.NaN })).toThrow(
+			/molecularMass: counts\.H must be a finite number/,
+		);
+		expect(() => molecularMass({ O: -1 })).toThrow(/molecularMass: counts\.O cannot be negative/);
+	});
+
+	it("names a missing or array-shaped formula instead of leaking Object.entries errors", () => {
+		expect(() => molecularMass(undefined as unknown as Record<string, number>)).toThrow(
+			/molecularMass: counts must be an object, got undefined/,
+		);
+		expect(() => molecularMass([1] as unknown as Record<string, number>)).toThrow(
+			/molecularMass: counts must be an object, got an array/,
+		);
+	});
 });
 
 describe("scarcity", () => {
@@ -106,5 +116,12 @@ describe("scarcity", () => {
 		const s = scarcity({ C: 6, H: 12, O: 6 });
 		expect(Number.isFinite(s)).toBe(true);
 		expect(s).toBeGreaterThanOrEqual(0);
+	});
+
+	it("rejects invalid counts instead of returning NaN or negative scarcity", () => {
+		expect(() => scarcity({ C: Number.POSITIVE_INFINITY })).toThrow(
+			/scarcity: counts\.C must be a finite number/,
+		);
+		expect(() => scarcity({ C: -1 })).toThrow(/scarcity: counts\.C cannot be negative/);
 	});
 });

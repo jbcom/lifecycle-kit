@@ -1,10 +1,5 @@
 import { bounds, concatPaths, type Path, tagPath } from "../path.js";
-import {
-	params as checkParams,
-	path as checkPath,
-	finite,
-	partName,
-} from "../validate.js";
+import { params as checkParams, path as checkPath, nonNegative, partName } from "../validate.js";
 
 export interface EncloseParams {
 	/** How far the shell extends past the enclosed geometry's bounds. */
@@ -27,7 +22,7 @@ export interface EncloseParams {
  * actually occludes the body beneath it. A consumer that wants the body
  * fully hidden strokes and fills the shell opaque; one that wants a visible
  * body under a translucent shell (a cicada's wing case) controls that with
- * fill alpha, which is `lifecycle-assemblage`'s job, not this rule's.
+ * fill alpha, which is the assemblage stage's job, not this rule's.
  *
  * An empty unit encloses nothing and is returned unchanged — there is no
  * "shell with no bounds" to draw.
@@ -35,7 +30,7 @@ export interface EncloseParams {
 export function enclose(unit: Path, params: EncloseParams): Path {
 	checkParams("enclose", params);
 	checkPath("enclose", "unit", unit);
-	finite("enclose", "thickness", params.thickness);
+	nonNegative("enclose", "thickness", params.thickness);
 	partName("enclose", "part", params.part);
 
 	const box = bounds(unit);

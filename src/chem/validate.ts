@@ -1,10 +1,12 @@
+import type { Backbone } from "./biochemistry.js";
+
 /**
  * Parameter checks at the composition boundary.
  *
  * This package is where the most-cited bug in its history actually originated.
- * `lifecycle-forms/src/validate.ts` opens by describing a "#NaNNaNNaN" fill
- * that reached `lifecycle-assemblage`, made a creature vanish three packages
- * from the mistake, and passed every unit test in both packages on the way.
+ * The forms-stage validator describes a "#NaNNaNNaN" fill that reached
+ * assemblage, made a creature vanish three stages from the mistake, and
+ * passed every unit test in both stages on the way.
  * That exact string is what `compositionColor` returns, today, for a
  * composition containing a NaN.
  *
@@ -31,8 +33,7 @@ function describe(value: unknown): string {
 	if (value === null) return "null";
 	if (value === undefined) return "undefined";
 	if (Array.isArray(value)) return "an array";
-	if (typeof value === "object")
-		return `an object (${Object.keys(value as object).join(", ")})`;
+	if (typeof value === "object") return `an object (${Object.keys(value as object).join(", ")})`;
 	return `${typeof value} ${String(value)}`;
 }
 
@@ -44,19 +45,39 @@ function describe(value: unknown): string {
  * invoked nor the argument they omitted.
  */
 export function object<T>(fn: string, name: string, value: T | undefined): T {
-	if (value === null || typeof value !== "object") {
-		throw new TypeError(
-			`${fn}: ${name} must be an object, got ${describe(value)}`,
-		);
+	if (value === null || typeof value !== "object" || Array.isArray(value)) {
+		throw new TypeError(`${fn}: ${name} must be an object, got ${describe(value)}`);
 	}
 	return value;
 }
 
 export function finite(fn: string, name: string, value: unknown): number {
 	if (typeof value !== "number" || !Number.isFinite(value)) {
-		throw new TypeError(
-			`${fn}: ${name} must be a finite number, got ${describe(value)}`,
-		);
+		throw new TypeError(`${fn}: ${name} must be a finite number, got ${describe(value)}`);
+	}
+	return value;
+}
+
+export function nonNegative(fn: string, name: string, value: unknown): number {
+	const amount = finite(fn, name, value);
+	if (amount < 0) {
+		throw new RangeError(`${fn}: ${name} cannot be negative, got ${amount}`);
+	}
+	return amount;
+}
+
+export function positive(fn: string, name: string, value: unknown): number {
+	const amount = finite(fn, name, value);
+	if (amount <= 0) {
+		throw new RangeError(`${fn}: ${name} must be greater than zero, got ${amount}`);
+	}
+	return amount;
+}
+
+/** A supported long-chain chemistry, checked for JavaScript callers. */
+export function backbone(fn: string, name: string, value: unknown): Backbone {
+	if (value !== "C" && value !== "Si" && value !== "S") {
+		throw new TypeError(`${fn}: ${name} must be C, Si, or S, got ${describe(value)}`);
 	}
 	return value;
 }
@@ -69,22 +90,18 @@ export function finite(fn: string, name: string, value: unknown): number {
  * surfaces two packages later as a colour.
  *
  * A negative fraction is rejected for the same reason a negative mass is in
- * `lifecycle-bio-laws`: it is not a quantity to clamp, it is a caller bug,
+ * the bio-laws stage: it is not a quantity to clamp, it is a caller bug,
  * and normalising it would silently produce a composition whose parts sum to
  * one while one of them is negative.
  */
-export function composition(
-	fn: string,
-	name: string,
-	value: Record<string, number>,
-): void {
+export function quantities(fn: string, name: string, value: Record<string, number>): void {
 	object(fn, name, value);
 	for (const [key, amount] of Object.entries(value)) {
-		finite(fn, `${name}.${key}`, amount);
-		if (amount < 0) {
-			throw new RangeError(
-				`${fn}: ${name}.${key} cannot be negative, got ${amount}`,
-			);
-		}
+		nonNegative(fn, `${name}.${key}`, amount);
 	}
+}
+
+/** A composition is a quantity record whose keys happen to be tissue names. */
+export function composition(fn: string, name: string, value: Record<string, number>): void {
+	quantities(fn, name, value);
 }

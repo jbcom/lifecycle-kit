@@ -87,19 +87,17 @@ export function scale(path: Path, sx: number, sy: number = sx): Path {
 	finite("scale", "sx", sx);
 	finite("scale", "sy", sy);
 	return {
-		shapes: mapPoints(path, (v) => ({ x: v.x * sx, y: v.y * sy })).shapes.map(
-			(shape, i): Shape => {
-				const original = path.shapes[i];
-				if (shape.kind === "ellipse" && original?.kind === "ellipse") {
-					return {
-						...shape,
-						radiusX: original.radiusX * sx,
-						radiusY: original.radiusY * sy,
-					};
-				}
-				return shape;
-			},
-		),
+		shapes: mapPoints(path, (v) => ({ x: v.x * sx, y: v.y * sy })).shapes.map((shape, i): Shape => {
+			const original = path.shapes[i];
+			if (shape.kind === "ellipse" && original?.kind === "ellipse") {
+				return {
+					...shape,
+					radiusX: original.radiusX * sx,
+					radiusY: original.radiusY * sy,
+				};
+			}
+			return shape;
+		}),
 	};
 }
 

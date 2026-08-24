@@ -1,15 +1,8 @@
-import type { Shape } from "../../forms/index.js";
 import { describe, expect, it } from "vitest";
+import type { Shape } from "../../forms/index.js";
 import { assemble } from "../assemble.js";
 import { DEFAULT_LIGHT, shade } from "../light.js";
-import {
-	boxArea,
-	occlusion,
-	offsetBox,
-	overlapArea,
-	shadowed,
-	shapeBox,
-} from "../shadow.js";
+import { boxArea, occlusion, offsetBox, overlapArea, shadowed, shapeBox } from "../shadow.js";
 
 /**
  * Self-shadowing is what separates "grown" from "pasted".
@@ -26,13 +19,7 @@ import {
  * not change is the ordering, and that is what is asserted.
  */
 
-function ellipse(
-	part: string,
-	index: number,
-	x: number,
-	y: number,
-	r = 0.3,
-): Shape {
+function ellipse(part: string, index: number, x: number, y: number, r = 0.3): Shape {
 	return {
 		kind: "ellipse",
 		center: { x, y },
@@ -68,9 +55,7 @@ describe("shape extents", () => {
 		const box = shapeBox({
 			kind: "subpath",
 			start: { x: 0, y: 0 },
-			segments: [
-				{ kind: "quadratic", control: { x: 1, y: 1 }, to: { x: 2, y: 0 } },
-			],
+			segments: [{ kind: "quadratic", control: { x: 1, y: 1 }, to: { x: 2, y: 0 } }],
 			closed: false,
 		});
 		expect(box.max.y).toBeGreaterThanOrEqual(0.5);
@@ -254,11 +239,7 @@ describe("occlusion between parts", () => {
 			radiusY: 0.2,
 		} as unknown as Shape;
 		const body = { shape: ellipse("body", 0, 0, 0), depth: 0 };
-		const result = occlusion(
-			body,
-			[body, { shape: bad, depth: 2 }],
-			DEFAULT_LIGHT,
-		);
+		const result = occlusion(body, [body, { shape: bad, depth: 2 }], DEFAULT_LIGHT);
 		expect(Number.isFinite(result)).toBe(true);
 	});
 
@@ -290,16 +271,8 @@ describe("occlusion between parts", () => {
 		const ellipseCaster = { shape: ellipse("leg", 0, 0, 0, 0.5), depth: 2 };
 		const receiver = { shape: ellipse("body", 0, 0, 0, 1), depth: 0 };
 
-		const subpathCoverage = occlusion(
-			receiver,
-			[receiver, subpathCaster],
-			DEFAULT_LIGHT,
-		);
-		const ellipseCoverage = occlusion(
-			receiver,
-			[receiver, ellipseCaster],
-			DEFAULT_LIGHT,
-		);
+		const subpathCoverage = occlusion(receiver, [receiver, subpathCaster], DEFAULT_LIGHT);
+		const ellipseCoverage = occlusion(receiver, [receiver, ellipseCaster], DEFAULT_LIGHT);
 		expect(subpathCoverage).toBeGreaterThan(ellipseCoverage);
 	});
 
@@ -314,11 +287,7 @@ describe("occlusion between parts", () => {
 			depth: 0,
 		};
 		const caster = { shape: ellipse("leg", 0, 0, 0, 1), depth: 2 };
-		const covered = occlusion(
-			subpathReceiver,
-			[subpathReceiver, caster],
-			DEFAULT_LIGHT,
-		);
+		const covered = occlusion(subpathReceiver, [subpathReceiver, caster], DEFAULT_LIGHT);
 		expect(covered).toBeGreaterThan(0);
 		expect(Number.isFinite(covered)).toBe(true);
 	});
@@ -352,9 +321,7 @@ describe("the shading curve", () => {
 	// The specific case that shipped invisible: a body losing a third of its
 	// light must move by an amount a person can actually see.
 	it("makes a third of a light level a visible difference", () => {
-		expect(luma(shade(BASE, 0.675)) - luma(shade(BASE, 0.45))).toBeGreaterThan(
-			8,
-		);
+		expect(luma(shade(BASE, 0.675)) - luma(shade(BASE, 0.45))).toBeGreaterThan(8);
 	});
 
 	// A creature is a coloured thing in light, not a lamp. Blowing the

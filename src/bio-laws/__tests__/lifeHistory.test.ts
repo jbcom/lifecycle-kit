@@ -42,10 +42,8 @@ describe("life history laws", () => {
 		// The characteristic shape: most growth happens early, and the last
 		// increment of size is the most expensive one an organism ever buys.
 		it("decelerates as it approaches the asymptote", () => {
-			const first =
-				vonBertalanffyMass(3, 100, 0.3) - vonBertalanffyMass(1, 100, 0.3);
-			const later =
-				vonBertalanffyMass(11, 100, 0.3) - vonBertalanffyMass(9, 100, 0.3);
+			const first = vonBertalanffyMass(3, 100, 0.3) - vonBertalanffyMass(1, 100, 0.3);
+			const later = vonBertalanffyMass(11, 100, 0.3) - vonBertalanffyMass(9, 100, 0.3);
 			expect(first).toBeGreaterThan(later);
 		});
 
@@ -63,9 +61,7 @@ describe("life history laws", () => {
 		});
 
 		it("gives r-selected parents larger clutches than K-selected", () => {
-			expect(clutchSize(10, 0.1, true)).toBeGreaterThan(
-				clutchSize(10, 0.1, false),
-			);
+			expect(clutchSize(10, 0.1, true)).toBeGreaterThan(clutchSize(10, 0.1, false));
 		});
 
 		// r-selected allocate ~25% of body mass, K-selected ~10%.
@@ -114,10 +110,7 @@ describe("life history laws", () => {
 	describe("encephalization", () => {
 		// By construction EQ = 1 is exactly average for body size.
 		it("scores an average brain at 1", () => {
-			expect(encephalizationQuotient(expectedBrainMass(50), 50)).toBeCloseTo(
-				1,
-				6,
-			);
+			expect(encephalizationQuotient(expectedBrainMass(50), 50)).toBeCloseTo(1, 6);
 		});
 
 		// Humans: ~1.35 kg brain, ~62 kg body. Jerison's EQ lands near 7.
@@ -127,9 +120,7 @@ describe("life history laws", () => {
 		});
 
 		it("scores a smaller-than-expected brain below 1", () => {
-			expect(
-				encephalizationQuotient(expectedBrainMass(50) / 2, 50),
-			).toBeLessThan(1);
+			expect(encephalizationQuotient(expectedBrainMass(50) / 2, 50)).toBeLessThan(1);
 		});
 
 		/**
@@ -174,15 +165,9 @@ describe("life history laws", () => {
 		// The headline finding: swimming is cheapest, burrowing is brutal.
 		it("ranks the gaits the way the paper does", () => {
 			const m = 1;
-			expect(costOfTransport.swimming(m)).toBeLessThan(
-				costOfTransport.flying(m),
-			);
-			expect(costOfTransport.flying(m)).toBeLessThan(
-				costOfTransport.running(m),
-			);
-			expect(costOfTransport.running(m)).toBeLessThan(
-				costOfTransport.burrowing(m),
-			);
+			expect(costOfTransport.swimming(m)).toBeLessThan(costOfTransport.flying(m));
+			expect(costOfTransport.flying(m)).toBeLessThan(costOfTransport.running(m));
+			expect(costOfTransport.running(m)).toBeLessThan(costOfTransport.burrowing(m));
 		});
 
 		// "Flying is 6x more efficient than running" — at 1 kg, 10.7/1.6.
@@ -193,9 +178,7 @@ describe("life history laws", () => {
 		});
 
 		it("costs more per kilogram as an animal gets heavier", () => {
-			expect(costOfTransport.running(100)).toBeGreaterThan(
-				costOfTransport.running(1),
-			);
+			expect(costOfTransport.running(100)).toBeGreaterThan(costOfTransport.running(1));
 		});
 	});
 

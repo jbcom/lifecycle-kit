@@ -1,8 +1,8 @@
 /**
  * Parameter checks at the law boundary.
  *
- * Same argument as `lifecycle-forms/src/validate.ts` and
- * `lifecycle-pigment/src/validate.ts`, and found the same way — by composing
+ * Same argument as the forms and pigment stage validators, and found the
+ * same way — by composing
  * the published packages against each other rather than by any test inside
  * one of them.
  *
@@ -36,16 +36,13 @@ function describe(value: unknown): string {
 	if (value === null) return "null";
 	if (value === undefined) return "undefined";
 	if (Array.isArray(value)) return "an array";
-	if (typeof value === "object")
-		return `an object (${Object.keys(value as object).join(", ")})`;
+	if (typeof value === "object") return `an object (${Object.keys(value as object).join(", ")})`;
 	return `${typeof value} ${String(value)}`;
 }
 
 export function finite(law: string, name: string, value: unknown): number {
 	if (typeof value !== "number" || !Number.isFinite(value)) {
-		throw new TypeError(
-			`${law}: ${name} must be a finite number, got ${describe(value)}`,
-		);
+		throw new TypeError(`${law}: ${name} must be a finite number, got ${describe(value)}`);
 	}
 	return value;
 }

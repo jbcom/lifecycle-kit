@@ -16,9 +16,7 @@ const leg: Path = {
 
 describe("pair", () => {
 	it("emits two shapes for one unit", () => {
-		expect(
-			pair(leg, { attachment: { x: 2, y: 1 }, part: "leg" }).shapes,
-		).toHaveLength(2);
+		expect(pair(leg, { attachment: { x: 2, y: 1 }, part: "leg" }).shapes).toHaveLength(2);
 	});
 
 	// Reflected across the BODY's long axis (+x), so the members differ in y
@@ -29,8 +27,7 @@ describe("pair", () => {
 		const both = pair(leg, { attachment: { x: 2, y: 1 }, part: "leg" });
 		const right = both.shapes[0];
 		const left = both.shapes[1];
-		if (right?.kind !== "subpath" || left?.kind !== "subpath")
-			throw new Error("expected subpaths");
+		if (right?.kind !== "subpath" || left?.kind !== "subpath") throw new Error("expected subpaths");
 		// Right leg's tip: attachment (2,1) + unit tip (1, 0.3).
 		expect(right.segments[0]).toMatchObject({ to: { x: 3, y: 1.3 } });
 		// Left leg's tip: mirrored attachment (2,-1) + mirrored unit tip (1,-0.3).
@@ -59,8 +56,7 @@ describe("pair", () => {
 		const centred = pair(leg, { attachment: { x: 1, y: 1 }, part: "leg" });
 		const right = centred.shapes[0];
 		const left = centred.shapes[1];
-		if (right?.kind !== "subpath" || left?.kind !== "subpath")
-			throw new Error("expected subpaths");
+		if (right?.kind !== "subpath" || left?.kind !== "subpath") throw new Error("expected subpaths");
 		// Same station along the body, opposite sides of it.
 		expect(right.start.x).toBeCloseTo(left.start.x, 12);
 		expect(right.start.y).toBeCloseTo(-left.start.y, 12);

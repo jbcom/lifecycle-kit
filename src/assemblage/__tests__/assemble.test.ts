@@ -1,5 +1,5 @@
-import type { Shape } from "../../forms/index.js";
 import { describe, expect, it } from "vitest";
+import type { Shape } from "../../forms/index.js";
 import { assemble, DEFAULT_LIGHT, litness, shade } from "../assemble.js";
 
 /**
@@ -131,10 +131,7 @@ describe("light", () => {
 
 	it("does not vary along the light's own axis", () => {
 		const light = { direction: { x: 1, y: 0 }, ambient: 0.3 };
-		expect(litness({ x: 0, y: -1 }, light)).toBeCloseTo(
-			litness({ x: 0, y: 1 }, light),
-			6,
-		);
+		expect(litness({ x: 0, y: -1 }, light)).toBeCloseTo(litness({ x: 0, y: 1 }, light), 6);
 	});
 
 	// Ambient is what stops the unlit side being a black hole. A creature has

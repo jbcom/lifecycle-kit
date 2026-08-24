@@ -79,12 +79,8 @@ describe("no law returns a non-finite number", () => {
 
 describe("multi-argument laws check every argument", () => {
 	it("clutchSize rejects a negative parent or offspring mass", () => {
-		expect(() => clutchSize(-1, 0.5)).toThrow(
-			/clutchSize: parentMass cannot be negative/,
-		);
-		expect(() => clutchSize(10, -0.5)).toThrow(
-			/clutchSize: offspringMass cannot be negative/,
-		);
+		expect(() => clutchSize(-1, 0.5)).toThrow(/clutchSize: parentMass cannot be negative/);
+		expect(() => clutchSize(10, -0.5)).toThrow(/clutchSize: offspringMass cannot be negative/);
 		expect(() => clutchSize(Number.NaN, 0.5)).toThrow(/parentMass/);
 	});
 
@@ -165,8 +161,6 @@ describe("the published values still hold", () => {
 	});
 
 	it("still makes swimming cheaper than running", () => {
-		expect(costOfTransport.swimming(10)).toBeLessThan(
-			costOfTransport.running(10),
-		);
+		expect(costOfTransport.swimming(10)).toBeLessThan(costOfTransport.running(10));
 	});
 });

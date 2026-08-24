@@ -24,15 +24,11 @@ describe("the ./bio-laws public entry point", () => {
 		expect(bioLaws.costOfTransport).toBeDefined();
 		expect(typeof bioLaws.costOfTransport.swimming).toBe("function");
 		expect(typeof bioLaws.costOfTransport.running).toBe("function");
-		expect(bioLaws.costOfTransport.swimming(10)).toBeLessThan(
-			bioLaws.costOfTransport.running(10),
-		);
+		expect(bioLaws.costOfTransport.swimming(10)).toBeLessThan(bioLaws.costOfTransport.running(10));
 	});
 
 	it("computes a real, finite answer through the barrel", () => {
 		expect(bioLaws.expectedBrainMass(50)).toBeGreaterThan(0);
-		expect(
-			bioLaws.encephalizationQuotient(bioLaws.expectedBrainMass(50), 50),
-		).toBeCloseTo(1, 6);
+		expect(bioLaws.encephalizationQuotient(bioLaws.expectedBrainMass(50), 50)).toBeCloseTo(1, 6);
 	});
 });

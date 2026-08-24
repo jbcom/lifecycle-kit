@@ -26,9 +26,7 @@ describe("the package root entry point", () => {
 	 * different things to different argument shapes.
 	 */
 	it("keeps chem.normalise and assemblage.normalise as two distinct functions", () => {
-		expect(lifecycleKit.chem.normalise).not.toBe(
-			lifecycleKit.assemblage.normalise,
-		);
+		expect(lifecycleKit.chem.normalise).not.toBe(lifecycleKit.assemblage.normalise);
 
 		// chem.normalise takes a tissue Composition and returns fractions
 		// summing to one.

@@ -36,15 +36,13 @@ describe("rules reject malformed parameters", () => {
 	});
 
 	it("taper rejects NaN", () => {
-		expect(() =>
-			taper({ from: Number.NaN, to: 0.1, bulgeAt: 0.5, length: 1 }),
-		).toThrow(/finite|number/i);
+		expect(() => taper({ from: Number.NaN, to: 0.1, bulgeAt: 0.5, length: 1 })).toThrow(
+			/finite|number/i,
+		);
 	});
 
 	it("taper accepts honest numbers", () => {
-		expect(() =>
-			taper({ from: 0.3, to: 0.1, bulgeAt: 0.5, length: 1 }),
-		).not.toThrow();
+		expect(() => taper({ from: 0.3, to: 0.1, bulgeAt: 0.5, length: 1 })).not.toThrow();
 	});
 
 	/**
@@ -93,10 +91,7 @@ describe("rules reject malformed parameters", () => {
 	// Every rule takes numbers somewhere, and every one of them can be handed
 	// a NaN by arithmetic upstream.
 	it.each([
-		[
-			"pair",
-			() => pair(UNIT, { attachment: { x: Number.NaN, y: 0 }, part: "leg" }),
-		],
+		["pair", () => pair(UNIT, { attachment: { x: Number.NaN, y: 0 }, part: "leg" })],
 		[
 			"branch",
 			() =>
@@ -180,9 +175,8 @@ describe("every rule refuses malformed parameters", () => {
 	});
 
 	it("rejects a missing params bag by name", () => {
-		expect(() => repeat(UNIT, undefined as never)).toThrow(
-			/repeat: params must be an object/,
-		);
+		expect(() => taper(undefined as never)).toThrow(/taper: params must be an object/);
+		expect(() => repeat(UNIT, undefined as never)).toThrow(/repeat: params must be an object/);
 		expect(() => pair(UNIT, undefined as never)).toThrow(/pair: params/);
 		expect(() => radiate(UNIT, undefined as never)).toThrow(/radiate: params/);
 		expect(() => branch(UNIT, undefined as never)).toThrow(/branch: params/);
@@ -201,15 +195,15 @@ describe("every rule refuses malformed parameters", () => {
 	});
 
 	it("rejects an empty part name that would merge unrelated shapes", () => {
-		expect(() =>
-			repeat(UNIT, { axis: { x: 1, y: 0 }, count: 2, spacing: 1, part: "" }),
-		).toThrow(/repeat: part must be a non-empty string/);
+		expect(() => repeat(UNIT, { axis: { x: 1, y: 0 }, count: 2, spacing: 1, part: "" })).toThrow(
+			/repeat: part must be a non-empty string/,
+		);
 	});
 
 	it("pair and radiate reject a malformed point", () => {
-		expect(() =>
-			pair(UNIT, { attachment: "middle" as never, part: "leg" }),
-		).toThrow(/pair: attachment must be a \{ x, y \} point/);
+		expect(() => pair(UNIT, { attachment: "middle" as never, part: "leg" })).toThrow(
+			/pair: attachment must be a \{ x, y \} point/,
+		);
 		expect(() =>
 			radiate(UNIT, {
 				center: { x: 0, y: Number.NaN },
@@ -221,13 +215,9 @@ describe("every rule refuses malformed parameters", () => {
 	});
 
 	it("the transforms every rule is built on reject NaN", () => {
-		expect(() => translate(UNIT, { x: Number.NaN, y: 0 })).toThrow(
-			/translate: offset\.x/,
-		);
+		expect(() => translate(UNIT, { x: Number.NaN, y: 0 })).toThrow(/translate: offset\.x/);
 		expect(() => scale(UNIT, Number.NaN)).toThrow(/scale: sx/);
-		expect(() => rotateTurns(UNIT, undefined as never)).toThrow(
-			/rotateTurns: turns/,
-		);
+		expect(() => rotateTurns(UNIT, undefined as never)).toThrow(/rotateTurns: turns/);
 	});
 
 	/**
@@ -281,5 +271,86 @@ describe("every rule refuses malformed parameters", () => {
 				part: "frond",
 			}),
 		).toThrow(/branch: angle must be a finite number, got null/);
+	});
+});
+
+describe("rules enforce documented geometry domains and allocation limits", () => {
+	const UNIT = taper({ from: 0.2, to: 0.1, bulgeAt: 0.5, length: 0.4 });
+
+	it("rejects negative half-widths and out-of-range bulges", () => {
+		expect(() => taper({ from: -0.1, to: 0.1, bulgeAt: 0.5, length: 1 })).toThrow(
+			/taper: from cannot be negative/,
+		);
+		expect(() => taper({ from: 0.1, to: 0.1, bulgeAt: 1.1, length: 1 })).toThrow(
+			/taper: bulgeAt must be between 0 and 1/,
+		);
+	});
+
+	it("rejects invalid branch fractions and shell thickness", () => {
+		const base = { depth: 2, splits: 2, angle: 0.2, part: "frond" };
+		expect(() => branch(UNIT, { ...base, shrink: 0, attachAt: 1 })).toThrow(
+			/branch: shrink must be greater than 0 and at most 1/,
+		);
+		expect(() => branch(UNIT, { ...base, shrink: 0.7, attachAt: 2 })).toThrow(
+			/branch: attachAt must be between 0 and 1/,
+		);
+		expect(() => enclose(UNIT, { thickness: -0.1, part: "shell" })).toThrow(
+			/enclose: thickness cannot be negative/,
+		);
+	});
+
+	it("rejects turn spans outside the documented range", () => {
+		expect(() =>
+			radiate(UNIT, {
+				center: { x: 0, y: 0 },
+				count: 3,
+				spreadTurns: 1.1,
+				part: "arm",
+			}),
+		).toThrow(/radiate: spreadTurns must be between 0 and 1/);
+	});
+
+	it("refuses copy counts that could exhaust a host process", () => {
+		expect(() =>
+			repeat(UNIT, {
+				axis: { x: 1, y: 0 },
+				count: 10_001,
+				spacing: 1,
+				part: "segment",
+			}),
+		).toThrow(/repeat: count cannot exceed 10000/);
+		expect(() =>
+			branch(UNIT, {
+				depth: 10,
+				splits: 4,
+				angle: 0.2,
+				shrink: 0.7,
+				attachAt: 1,
+				part: "frond",
+			}),
+		).toThrow(/would emit more than 10000 branch copies/);
+		expect(() =>
+			branch(UNIT, {
+				depth: 65,
+				splits: 1,
+				angle: 0,
+				shrink: 1,
+				attachAt: 1,
+				part: "frond",
+			}),
+		).toThrow(/branch: depth cannot exceed 64/);
+	});
+
+	it("does not overestimate a branch that has no children", () => {
+		expect(
+			branch(UNIT, {
+				depth: 64,
+				splits: 0,
+				angle: 0,
+				shrink: 1,
+				attachAt: 1,
+				part: "frond",
+			}).shapes,
+		).toHaveLength(1);
 	});
 });

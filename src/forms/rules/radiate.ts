@@ -1,16 +1,11 @@
+import { concatPaths, EMPTY_PATH, type Path, tagPath, type Vec2 } from "../path.js";
 import {
-	concatPaths,
-	EMPTY_PATH,
-	type Path,
-	tagPath,
-	type Vec2,
-} from "../path.js";
-import {
-	count as checkCount,
 	params as checkParams,
 	path as checkPath,
 	finite,
+	outputCount,
 	partName,
+	unitRange,
 	vec2,
 } from "../validate.js";
 import { rotateTurns, translate } from "./transform.js";
@@ -62,8 +57,8 @@ export function radiate(unit: Path, params: RadiateParams): Path {
 	checkParams("radiate", params);
 	checkPath("radiate", "unit", unit);
 	const center = vec2("radiate", "center", params.center);
-	const count = checkCount("radiate", "count", params.count);
-	const spreadTurns = finite("radiate", "spreadTurns", params.spreadTurns);
+	const count = outputCount("radiate", "count", params.count);
+	const spreadTurns = unitRange("radiate", "spreadTurns", params.spreadTurns);
 	const part = partName("radiate", "part", params.part);
 	const startTurn = finite("radiate", "startTurn", params.startTurn ?? 0);
 

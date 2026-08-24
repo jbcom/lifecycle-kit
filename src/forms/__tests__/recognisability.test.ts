@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	type Animated,
-	at,
-	bounds,
-	concatPaths,
-	type Path,
-	partBounds,
-	still,
-} from "../path.js";
+import { type Animated, at, bounds, concatPaths, type Path, partBounds, still } from "../path.js";
 import { branch } from "../rules/branch.js";
 import { pair } from "../rules/pair.js";
 import { radiate } from "../rules/radiate.js";
@@ -159,9 +151,7 @@ describe("recognisability: a jellyfish", () => {
 	});
 
 	it("has multiple trailing tentacles below the bell", () => {
-		const tentacles = partBounds(jellyfish(0)).filter(
-			(p) => p.part === "tentacle",
-		);
+		const tentacles = partBounds(jellyfish(0)).filter((p) => p.part === "tentacle");
 		expect(new Set(tentacles.map((t) => t.index)).size).toBe(6);
 		const bellBox = bounds({
 			shapes: jellyfish(0).shapes.filter((s) => s.tag?.part === "bell"),
@@ -194,10 +184,7 @@ describe("recognisability: a jellyfish", () => {
 		const pulsingBell = (phase: number): Path =>
 			taper({
 				from: 0.1,
-				to: at(
-					(p: number) => 0.8 + 0.15 * Math.sin((p % 1) * Math.PI * 2),
-					phase,
-				),
+				to: at((p: number) => 0.8 + 0.15 * Math.sin((p % 1) * Math.PI * 2), phase),
 				bulgeAt: 0.15,
 				length: 1,
 				part: "bell",

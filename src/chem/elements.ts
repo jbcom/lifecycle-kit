@@ -1,10 +1,11 @@
+import { quantities } from "./validate.js";
+
 /**
  * The elements a creature is made of.
  *
- * Ported from `arcade-cabinet/ebb-and-bloom`'s periodic table
- * (`agents/tables/periodic-table.ts`) — real atomic masses, valences,
- * electronegativities, cosmic abundances and CPK colours, validated there
- * against the npm `periodic-table` reference.
+ * Ported from a sibling simulation game's periodic table — real atomic
+ * masses, valences, electronegativities, cosmic abundances and CPK colours,
+ * validated against the npm `periodic-table` reference.
  *
  * That table stops at chlorine, which is a limitation we inherit and one that
  * does not matter here: H, C, N, O, P and S are roughly 99% of biomass by
@@ -222,6 +223,7 @@ export const ELEMENTS: Record<string, Element> = {
 
 /** Mass of a formula given as element counts, in u. */
 export function molecularMass(counts: Record<string, number>): number {
+	quantities("molecularMass", "counts", counts);
 	let total = 0;
 	for (const [sym, n] of Object.entries(counts)) {
 		const el = ELEMENTS[sym];
@@ -238,6 +240,7 @@ export function molecularMass(counts: Record<string, number>): number {
  * positive number where larger means scarcer.
  */
 export function scarcity(counts: Record<string, number>): number {
+	quantities("scarcity", "counts", counts);
 	let sum = 0;
 	let atoms = 0;
 	for (const [sym, n] of Object.entries(counts)) {

@@ -115,8 +115,7 @@ describe("pixi renderer", () => {
 describe("svg renderer", () => {
 	it("emits the exact path data for every segment kind", () => {
 		expect(toPathData(EVERY_FEATURE)).toBe(
-			"M 0 0 L 1 0 Q 2 1 3 0 C 4 -1 5 -1 6 0 Z " +
-				"M 1 2 A 1 0.5 0 1 0 3 2 A 1 0.5 0 1 0 1 2 Z",
+			"M 0 0 L 1 0 Q 2 1 3 0 C 4 -1 5 -1 6 0 Z " + "M 1 2 A 1 0.5 0 1 0 3 2 A 1 0.5 0 1 0 1 2 Z",
 		);
 	});
 
@@ -141,9 +140,7 @@ describe("svg renderer", () => {
 	 */
 	it("draws an ellipse as two arcs so it does not vanish", () => {
 		const data = toPathData({
-			shapes: [
-				{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 2, radiusY: 2 },
-			],
+			shapes: [{ kind: "ellipse", center: { x: 0, y: 0 }, radiusX: 2, radiusY: 2 }],
 		});
 		expect(data.match(/A /g)).toHaveLength(2);
 		expect(data).toBe("M -2 0 A 2 2 0 1 0 2 0 A 2 2 0 1 0 -2 0 Z");
@@ -200,9 +197,7 @@ describe("part tags are invisible to renderers", () => {
 		drawPath(plain, EVERY_FEATURE);
 		drawPath(tagged, tagPath(EVERY_FEATURE, "thorax", 1));
 		expect(tagged.calls).toEqual(plain.calls);
-		expect(toPathData(tagPath(EVERY_FEATURE, "thorax", 1))).toBe(
-			toPathData(EVERY_FEATURE),
-		);
+		expect(toPathData(tagPath(EVERY_FEATURE, "thorax", 1))).toBe(toPathData(EVERY_FEATURE));
 	});
 });
 
@@ -225,13 +220,9 @@ describe("the two renderers agree", () => {
 
 		expect(g.calls.filter((c) => c.startsWith("lineTo"))).toHaveLength(1);
 		expect(svg.match(/L /g)).toHaveLength(1);
-		expect(
-			g.calls.filter((c) => c.startsWith("quadraticCurveTo")),
-		).toHaveLength(1);
+		expect(g.calls.filter((c) => c.startsWith("quadraticCurveTo"))).toHaveLength(1);
 		expect(svg.match(/Q /g)).toHaveLength(1);
-		expect(g.calls.filter((c) => c.startsWith("bezierCurveTo"))).toHaveLength(
-			1,
-		);
+		expect(g.calls.filter((c) => c.startsWith("bezierCurveTo"))).toHaveLength(1);
 		expect(svg.match(/C /g)).toHaveLength(1);
 	});
 });

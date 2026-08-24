@@ -21,3 +21,11 @@ import * as assemblage from "lifecycle-kit/assemblage";
 
 The root entry point exposes the same stages as namespaces so colliding names
 stay explicit.
+
+The generated pages are the authoritative source for symbol signatures, units,
+and error behaviour. The guides explain how those symbols work together:
+
+- [Render a creature](./rendering/) covers `Path`, SVG/Pixi helpers, and
+  depth-sorted `AssembledPart` output.
+- [Agentic consumers](./agentic-consumers/) gives automation a narrow,
+  deterministic integration contract.

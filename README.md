@@ -184,6 +184,12 @@ For code you can run unchanged, start with the
 examples execute in CI against the package's built export map, so they cannot
 quietly drift away from the released API.
 
+The documentation site adds an explicit [rendering guide](https://jonbogaty.com/lifecycle-kit/rendering/)
+for SVG, Pixi, and custom renderers, plus an
+[agentic-consumer contract](https://jonbogaty.com/lifecycle-kit/agentic-consumers/)
+for reliable automated integrations. The generated API pages remain the source
+of truth for every exported symbol's signature, unit, and validation behaviour.
+
 ## Development
 
 The repository pins Node 22 and pnpm 11.23.0. The same command used by CI

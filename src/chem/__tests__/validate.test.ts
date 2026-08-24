@@ -3,7 +3,7 @@ import { inBackbone } from "../biochemistry.js";
 import { compositionColor, EMPTY_COMPOSITION, normalise } from "../biomolecules.js";
 
 /**
- * The assay for the fleet's most-cited bug, at its source.
+ * The assay for this package's most-cited bug, at its source.
  *
  * `lifecycle-forms/src/validate.ts` opens by describing a "#NaNNaNNaN" fill
  * that reached `lifecycle-assemblage`, made a creature vanish three packages

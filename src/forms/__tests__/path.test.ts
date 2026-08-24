@@ -315,7 +315,7 @@ describe("part tags", () => {
 describe("the composition operators refuse a malformed path", () => {
 	/**
 	 * Found by sweeping the published packages with the inputs that used to
-	 * leak elsewhere in the fleet. `concatPaths` is what every rule composes
+	 * leak elsewhere in this package. `concatPaths` is what every rule composes
 	 * through, so a malformed path admitted here ends up in whatever the rules
 	 * build on top of it — and the naive `paths.flatMap(p => p.shapes)` failed
 	 * with "Cannot read properties of undefined" from inside a flatMap,

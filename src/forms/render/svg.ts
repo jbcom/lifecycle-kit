@@ -11,7 +11,7 @@
  * that can be committed and eyeballed, which a canvas draw call is not.
  *
  * Emits strings, not DOM. This package is pure and node-testable — no
- * `document`, no DOM types — matching the sim-purity rule the fleet applies to
+ * `document`, no DOM types — matching the sim-purity rule this package applies to
  * simulation code, and for the same reason: it keeps the tests fast and honest.
  */
 

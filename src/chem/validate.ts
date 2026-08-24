@@ -1,7 +1,7 @@
 /**
  * Parameter checks at the composition boundary.
  *
- * This package is where the fleet's most-cited bug actually originated.
+ * This package is where the most-cited bug in its history actually originated.
  * `lifecycle-forms/src/validate.ts` opens by describing a "#NaNNaNNaN" fill
  * that reached `lifecycle-assemblage`, made a creature vanish three packages
  * from the mistake, and passed every unit test in both packages on the way.

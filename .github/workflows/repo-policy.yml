@@ -1,0 +1,66 @@
+name: Repository Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: repo-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Repository Policy / gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Block external forks from touching control-plane files
+        # This job never checks out, builds, or executes the PR's code —
+        # it only reads the changed-file list via the API — so a fork
+        # cannot use this step itself as an attack surface. It exists to
+        # stop a fork PR from silently editing the workflows, Actions, or
+        # third-party review-tool config that OTHER jobs later trust,
+        # without requiring a human to review every such PR by hand.
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const isFork = context.payload.pull_request.head.repo.full_name !== context.payload.pull_request.base.repo.full_name;
+            if (!isFork) {
+              core.info("Same-repository PR — trusted development branch, no control-plane restriction.");
+              return;
+            }
+
+            const controlPlanePatterns = [
+              /^\.github\/workflows\//,
+              /^\.github\/actions\//,
+              /^\.coderabbit\.yaml$/,
+              /^\.github\/dependabot\.yml$/,
+              /^\.github\/dependabot\.yaml$/,
+              /^release-please-config\.json$/,
+              /^\.release-please-manifest\.json$/,
+            ];
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+
+            const touched = files
+              .map((f) => f.filename)
+              .filter((path) => controlPlanePatterns.some((pattern) => pattern.test(path)));
+
+            if (touched.length > 0) {
+              core.setFailed(
+                "This pull request comes from a fork and modifies control-plane files, which is not permitted from external forks:\n" +
+                  touched.map((p) => `  - ${p}`).join("\n") +
+                  "\n\nThese paths can only be changed by a pull request from a branch in this repository."
+              );
+            } else {
+              core.info("Fork PR touches no control-plane files.");
+            }

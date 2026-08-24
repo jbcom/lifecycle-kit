@@ -54,21 +54,20 @@
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run coverage && pnpm run build && pnpm run check:examples && pnpm run check:package"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.2",
-    "@biomejs/biome": "^2.3.14",
-    "@vitest/coverage-v8": "^3.2.7",
-    "esbuild": "^0.28.1",
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@biomejs/biome": "^2.5.10",
+    "@vitest/coverage-v8": "^4.1.11",
+    "esbuild": "^0.28.2",
     "publint": "^0.3.24",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
   "engines": {
-    "node": ">=22",
-    "pnpm": ">=11"
+    "node": ">=22"
   },
   "packageManager": "pnpm@11.23.0",
   "repository": {

@@ -1,0 +1,12 @@
+[tools]
+# Keep this in sync with .nvmrc — mise doesn't read .nvmrc by default
+# (it requires an opt-in global setting most contributors won't have),
+# so both files pin the same version explicitly instead of one silently
+# depending on the other. actions/setup-node reads .nvmrc; mise users
+# get the same version from here.
+#
+# pnpm is intentionally not managed here — Corepack reads the
+# "packageManager" field in package.json as the single source of truth
+# for its version, both locally (`corepack enable`) and in CI
+# (pnpm/action-setup auto-detects it).
+node = "24"

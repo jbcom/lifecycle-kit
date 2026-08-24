@@ -42,9 +42,13 @@ export const DEFAULT_LIGHT: Light = {
  * "#NaNNaNNaN", which is the exact failure guarded in 0.1.1 arriving by a
  * different route.
  */
+function finiteOr0(n: number | undefined): number {
+	return typeof n === "number" && Number.isFinite(n) ? n : 0;
+}
+
 export function normalise(direction: Vec2 | undefined): Vec2 {
-	const dx = Number.isFinite(direction?.x) ? (direction?.x ?? 0) : 0;
-	const dy = Number.isFinite(direction?.y) ? (direction?.y ?? 0) : 0;
+	const dx = finiteOr0(direction?.x);
+	const dy = finiteOr0(direction?.y);
 	const len = Math.hypot(dx, dy);
 	if (!(len > 0)) return normalise(DEFAULT_LIGHT.direction);
 	return { x: dx / len, y: dy / len };

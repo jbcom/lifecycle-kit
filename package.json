@@ -60,10 +60,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jbcom/lifecycle.git"
+    "url": "git+https://github.com/jbcom/lifecycle-kit.git"
   },
   "bugs": {
-    "url": "https://github.com/jbcom/lifecycle/issues"
+    "url": "https://github.com/jbcom/lifecycle-kit/issues"
   },
-  "homepage": "https://github.com/jbcom/lifecycle#readme"
+  "homepage": "https://github.com/jbcom/lifecycle-kit#readme",
+  "author": "Jon Bogaty <jon@jonbogaty.com>",
+  "keywords": [
+    "procedural-generation",
+    "chemistry",
+    "biology",
+    "compositional-form",
+    "pigment",
+    "2.5d",
+    "game-dev"
+  ]
 }

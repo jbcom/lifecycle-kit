@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { backboneScore, chainStability, deriveBiochemistry, inBackbone } from "../biochemistry";
+import {
+	backboneScore,
+	chainStability,
+	deriveBiochemistry,
+	inBackbone,
+} from "../biochemistry";
 import { CATENATION, HYDROLYSIS } from "../elements";
 
 /**
@@ -29,8 +34,12 @@ describe("biochemistry", () => {
 		// The stronger catenator survives further, everywhere water isn't the
 		// deciding factor.
 		it("favours the stronger catenator when dry", () => {
-			expect(chainStability("C", 600)).toBeGreaterThan(chainStability("Si", 600));
-			expect(chainStability("C", 200)).toBeGreaterThan(chainStability("Si", 200));
+			expect(chainStability("C", 600)).toBeGreaterThan(
+				chainStability("Si", 600),
+			);
+			expect(chainStability("C", 200)).toBeGreaterThan(
+				chainStability("Si", 200),
+			);
 		});
 
 		// Si-O-Si hydrolyses; this is why Earth's silicon is silicate rock.
@@ -40,11 +49,15 @@ describe("biochemistry", () => {
 
 		it("spares carbon from hydrolysis", () => {
 			// No notch across the liquid-water range for carbon.
-			expect(chainStability("C", 288)).toBeGreaterThan(chainStability("C", 400));
+			expect(chainStability("C", 288)).toBeGreaterThan(
+				chainStability("C", 400),
+			);
 		});
 
 		it("restores silicon once the water boils off", () => {
-			expect(chainStability("Si", 400)).toBeGreaterThan(chainStability("Si", 288) * 10);
+			expect(chainStability("Si", 400)).toBeGreaterThan(
+				chainStability("Si", 288) * 10,
+			);
 		});
 	});
 
@@ -85,11 +98,27 @@ describe("biochemistry", () => {
 
 		it("reports why a backbone won", () => {
 			expect(deriveBiochemistry({}, 288).rationale).toMatch(/[Cc]arbon/);
-			expect(deriveBiochemistry({ Si: 30 }, 500).rationale).toMatch(/[Ss]ilicon/);
+			expect(deriveBiochemistry({ Si: 30 }, 500).rationale).toMatch(
+				/[Ss]ilicon/,
+			);
 		});
 
 		it("explains silicon by the absence of water", () => {
 			expect(deriveBiochemistry({ Si: 30 }, 500).rationale).toMatch(/water/i);
+		});
+
+		/**
+		 * The genuine crossover the header promises: silicon can win even on a
+		 * WET world, if it is abundant enough to overcome the hydrolysis penalty
+		 * carbon does not pay. Every other silicon test in this file is dry
+		 * (kelvin >= 500), so the "Silicon ... survive this world's water"
+		 * rationale string had never actually been produced by this function.
+		 */
+		it("chooses silicon even on a wet world when silicon is overwhelming", () => {
+			const result = deriveBiochemistry({ Si: 100_000 }, 288);
+			expect(result.backbone).toBe("Si");
+			expect(result.rationale).toMatch(/[Ss]ilicon/);
+			expect(result.rationale).toMatch(/survive this world's water/i);
 		});
 
 		/**
@@ -126,13 +155,31 @@ describe("biochemistry", () => {
 		// A rationale that restates the result teaches nothing. Carbon chaining
 		// strongly is a property of carbon, not of this world.
 		it("does not answer with a tautology about the winner", () => {
-			expect(deriveBiochemistry({}, 288).rationale).not.toMatch(/chains to itself more strongly/i);
+			expect(deriveBiochemistry({}, 288).rationale).not.toMatch(
+				/chains to itself more strongly/i,
+			);
 		});
 
 		it("is deterministic for the same world", () => {
 			const a = deriveBiochemistry({ Si: 12 }, 420);
 			const b = deriveBiochemistry({ Si: 12 }, 420);
 			expect(a).toEqual(b);
+		});
+
+		/**
+		 * `margin` is `winner.score / runnerUp.score`, guarded by
+		 * `runnerUp.score > 0` so a zero runner-up reports Infinity rather than
+		 * NaN. At an ordinary temperature the runner-up's score is always some
+		 * tiny positive float, so that guard's false branch had never actually
+		 * run. On an absurdly hot world every candidate's Arrhenius survival
+		 * term underflows to exactly 0 — the winner included — which is exactly
+		 * when the guard matters: `0 / 0` is NaN, and the guard exists so the
+		 * result is a defensible "no contest" Infinity instead.
+		 */
+		it("reports an infinite margin rather than NaN when every candidate's score underflows to zero", () => {
+			const result = deriveBiochemistry({}, 500_000);
+			expect(result.margin).toBe(Number.POSITIVE_INFINITY);
+			expect(Number.isNaN(result.margin)).toBe(false);
 		});
 	});
 

@@ -31,7 +31,8 @@ function describe(value: unknown): string {
 	if (value === null) return "null";
 	if (value === undefined) return "undefined";
 	if (Array.isArray(value)) return "an array";
-	if (typeof value === "object") return `an object (${Object.keys(value as object).join(", ")})`;
+	if (typeof value === "object")
+		return `an object (${Object.keys(value as object).join(", ")})`;
 	return `${typeof value} ${String(value)}`;
 }
 
@@ -44,14 +45,18 @@ function describe(value: unknown): string {
  */
 export function object<T>(fn: string, name: string, value: T | undefined): T {
 	if (value === null || typeof value !== "object") {
-		throw new TypeError(`${fn}: ${name} must be an object, got ${describe(value)}`);
+		throw new TypeError(
+			`${fn}: ${name} must be an object, got ${describe(value)}`,
+		);
 	}
 	return value;
 }
 
 export function finite(fn: string, name: string, value: unknown): number {
 	if (typeof value !== "number" || !Number.isFinite(value)) {
-		throw new TypeError(`${fn}: ${name} must be a finite number, got ${describe(value)}`);
+		throw new TypeError(
+			`${fn}: ${name} must be a finite number, got ${describe(value)}`,
+		);
 	}
 	return value;
 }
@@ -68,12 +73,18 @@ export function finite(fn: string, name: string, value: unknown): number {
  * and normalising it would silently produce a composition whose parts sum to
  * one while one of them is negative.
  */
-export function composition(fn: string, name: string, value: Record<string, number>): void {
+export function composition(
+	fn: string,
+	name: string,
+	value: Record<string, number>,
+): void {
 	object(fn, name, value);
 	for (const [key, amount] of Object.entries(value)) {
 		finite(fn, `${name}.${key}`, amount);
 		if (amount < 0) {
-			throw new RangeError(`${fn}: ${name}.${key} cannot be negative, got ${amount}`);
+			throw new RangeError(
+				`${fn}: ${name}.${key} cannot be negative, got ${amount}`,
+			);
 		}
 	}
 }

@@ -192,6 +192,39 @@ describe("bounds", () => {
 	});
 
 	/**
+	 * The X-axis peak of a cubic, not just its Y-axis one. The other cubic
+	 * test above starts and ends at x=0 and x=1 with both control points
+	 * ALSO pinned to x=0/x=1, so the curve is monotonic in x and its
+	 * x-extrema solver never actually returns an interior root. A curve that
+	 * bulges sideways — a limb curving outward, say — is the case that
+	 * exercises it.
+	 */
+	it("solves a cubic's real peak on the x axis, not only the y axis", () => {
+		const path: Path = {
+			shapes: [
+				{
+					kind: "subpath",
+					start: { x: 0, y: 0 },
+					segments: [
+						{
+							kind: "cubic",
+							control1: { x: 1, y: 0 },
+							control2: { x: 1, y: 1 },
+							to: { x: 0, y: 1 },
+						},
+					],
+					closed: false,
+				},
+			],
+		};
+		const box = bounds(path);
+		expect(box).not.toBeNull();
+		if (!box) return;
+		expect(box.max.x).toBeCloseTo(0.75, 12);
+		expect(box.min.x).toBe(0);
+	});
+
+	/**
 	 * An x-extremum occurs at a t whose y is unrelated to any endpoint. An
 	 * implementation that pairs a solved x with a guessed y silently widens the
 	 * other axis; this curve is flat in y, so any such leak shows up.
@@ -337,6 +370,31 @@ describe("the composition operators refuse a malformed path", () => {
 		expect(() =>
 			concatPaths({ shapes: "not an array" } as unknown as Path),
 		).toThrow(/must be a Path with a shapes array/);
+	});
+
+	/**
+	 * `typeof null === "object"`, and `describeValue`'s null check has to run
+	 * before its object check or `null` would print as an object with no
+	 * keys — worse wording for what is usually the most common bad-argument
+	 * case: an unset field on a real record. Only `undefined` had ever been
+	 * exercised above.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() => concatPaths(null as unknown as Path)).toThrow(
+			/argument 0 .* got null/,
+		);
+	});
+
+	/**
+	 * An array is `typeof "object"` but a caller passing a bare array where a
+	 * `Path` was expected — a raw shapes list, missing its `{ shapes }`
+	 * wrapper — is a distinct, common mistake from an arbitrary object, and
+	 * deserves the more specific "an array" wording rather than "an object ()".
+	 */
+	it("names an array distinctly from an object with no keys", () => {
+		expect(() => concatPaths([] as unknown as Path)).toThrow(
+			/argument 0 .* got an array/,
+		);
 	});
 
 	it("still composes real paths", () => {

@@ -69,6 +69,20 @@ describe("taper", () => {
 		}
 	});
 
+	/**
+	 * `length` is checked with `positive`, not just `finite` — a zero or
+	 * negative length is not a small taper, it is a body collapsed to
+	 * nothing or turned inside out, and nothing had ever supplied one.
+	 */
+	it("rejects a zero or negative length instead of emitting degenerate geometry", () => {
+		expect(() => taper({ from: 1, to: 0.2, bulgeAt: 0.5, length: 0 })).toThrow(
+			/taper: length must be greater than zero, got 0/,
+		);
+		expect(() => taper({ from: 1, to: 0.2, bulgeAt: 0.5, length: -5 })).toThrow(
+			/taper: length must be greater than zero, got -5/,
+		);
+	});
+
 	it("tags the outline when a part is supplied, and leaves it untagged otherwise", () => {
 		const tagged = taper({
 			from: 1,

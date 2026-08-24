@@ -229,4 +229,57 @@ describe("every rule refuses malformed parameters", () => {
 			/rotateTurns: turns/,
 		);
 	});
+
+	/**
+	 * The "got ..." clause on a plain `finite()` check has a branch for an
+	 * array and a branch for a plain object, distinct from "string" (`vec2`,
+	 * exercised above) and "undefined". A coordinate array or a stray options
+	 * object passed where a bare number was expected is a realistic mistake
+	 * — `angle: [0.1]` from a spread gone wrong, say — and neither branch had
+	 * ever been exercised.
+	 */
+	it("names an array distinctly from a number, for a plain finite() argument", () => {
+		expect(() =>
+			branch(UNIT, {
+				depth: 2,
+				splits: 2,
+				angle: [0.1] as unknown as number,
+				shrink: 0.7,
+				attachAt: 1,
+				part: "frond",
+			}),
+		).toThrow(/branch: angle must be a finite number, got an array/);
+	});
+
+	it("names an object's own keys instead of just saying 'object'", () => {
+		expect(() =>
+			branch(UNIT, {
+				depth: 2,
+				splits: 2,
+				angle: { turns: 0.1 } as unknown as number,
+				shrink: 0.7,
+				attachAt: 1,
+				part: "frond",
+			}),
+		).toThrow(/branch: angle must be a finite number, got an object \(turns\)/);
+	});
+
+	/**
+	 * `typeof null === "object"`, so `describe`'s null check has to run
+	 * before its object check or `null` would print as an object with no
+	 * keys — a strictly worse message for the single most common bad-argument
+	 * case: an unset field on a real record.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() =>
+			branch(UNIT, {
+				depth: 2,
+				splits: 2,
+				angle: null as unknown as number,
+				shrink: 0.7,
+				attachAt: 1,
+				part: "frond",
+			}),
+		).toThrow(/branch: angle must be a finite number, got null/);
+	});
 });

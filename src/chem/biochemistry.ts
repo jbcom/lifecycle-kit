@@ -71,7 +71,9 @@ export function chainStability(symbol: Backbone, kelvin: number): number {
 	// 700-900 K range, and at this value carbon stability has fallen to ~0.15
 	// by 800 K while remaining ~0.5 at room temperature.
 	const CHAIN_LENGTH = 100;
-	const survives = Math.exp(-(CHAIN_LENGTH * 8.314 * kelvin) / (catenation * 1000));
+	const survives = Math.exp(
+		-(CHAIN_LENGTH * 8.314 * kelvin) / (catenation * 1000),
+	);
 
 	// Hydrolysis only matters where water is liquid. Between 273 and 373 K a
 	// silicon backbone is being taken apart as fast as it forms; carbon is
@@ -133,7 +135,9 @@ export function deriveBiochemistry(
 	if (!winner) throw new Error("no backbone candidates to score");
 	const runnerUp = scored[1];
 	const margin =
-		runnerUp && runnerUp.score > 0 ? winner.score / runnerUp.score : Number.POSITIVE_INFINITY;
+		runnerUp && runnerUp.score > 0
+			? winner.score / runnerUp.score
+			: Number.POSITIVE_INFINITY;
 
 	return {
 		backbone: winner.symbol,
@@ -159,7 +163,11 @@ export function deriveBiochemistry(
  * only in silicon's branch — carbon, the case a player almost always sees,
  * dropped it.
  */
-function rationaleFor(symbol: Backbone, margin: number, kelvin: number): string {
+function rationaleFor(
+	symbol: Backbone,
+	margin: number,
+	kelvin: number,
+): string {
 	const element = ELEMENTS[symbol];
 	const contested = margin < 1.5 ? ", narrowly" : "";
 	const wet = kelvin > 273 && kelvin < 373;

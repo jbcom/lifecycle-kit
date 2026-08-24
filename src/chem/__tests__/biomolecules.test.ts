@@ -44,16 +44,54 @@ describe("biomolecules", () => {
 		});
 
 		it("reads a body as its dominant tissue", () => {
-			expect(dominantTissue({ ...EMPTY_COMPOSITION, chitin: 0.6, protein: 0.4 })).toBe("chitin");
+			expect(
+				dominantTissue({ ...EMPTY_COMPOSITION, chitin: 0.6, protein: 0.4 }),
+			).toBe("chitin");
+		});
+
+		/**
+		 * `dominantTissue` seeds its comparison with `best = "sugar"` before it
+		 * has looked at the composition at all, so the very first comparison
+		 * reads `c.sugar` before knowing it exists. Every other test in this
+		 * file spreads `EMPTY_COMPOSITION`, which always has a `sugar` key —
+		 * this is the one realistic case (a malformed or hand-built
+		 * composition genuinely missing it) where that assumption fails, and
+		 * the function must not crash comparing against `undefined`.
+		 */
+		it("still finds a dominant tissue when the composition has no sugar key at all", () => {
+			const noSugar = {
+				chitin: 0.6,
+				protein: 0.4,
+			} as unknown as typeof EMPTY_COMPOSITION;
+			expect(dominantTissue(noSugar)).toBe("chitin");
 		});
 
 		it("colours a body from the elements it is made of", () => {
-			expect(compositionColor({ ...EMPTY_COMPOSITION, protein: 1 })).toMatch(/^#[0-9a-f]{6}$/i);
+			expect(compositionColor({ ...EMPTY_COMPOSITION, protein: 1 })).toMatch(
+				/^#[0-9a-f]{6}$/i,
+			);
 		});
 
 		it("gives an empty body a fallback colour", () => {
-			expect(compositionColor({ ...EMPTY_COMPOSITION })).toMatch(/^#[0-9a-f]{6}$/i);
+			expect(compositionColor({ ...EMPTY_COMPOSITION })).toMatch(
+				/^#[0-9a-f]{6}$/i,
+			);
 		});
+	});
+});
+
+/**
+ * `BiomoleculeId` is a `keyof typeof BIOMOLECULES` — a compile-time-only
+ * guarantee. A shared library is also reached by code the type checker never
+ * saw (a string built from user input, a stale id after a rename), and
+ * `asBackbone`'s own body already refuses that case explicitly rather than
+ * indexing into `undefined`; nothing had ever exercised the refusal.
+ */
+describe("asBackbone with an id the table does not know", () => {
+	it("throws by name rather than silently reading an undefined formula", () => {
+		expect(() => asBackbone("unobtanium" as BiomoleculeId, "C")).toThrow(
+			/unknown biomolecule unobtanium/,
+		);
 	});
 });
 
@@ -84,7 +122,9 @@ describe("backbone substitution", () => {
 	it("merges when the backbone already occurs in the tissue", () => {
 		// Keratin is C5H10N2O3S2 — on a sulfur world the chain joins the S.
 		const keratin = asBackbone("keratin", "S");
-		expect(keratin.S).toBe(BIOMOLECULES.keratin.formula.C + BIOMOLECULES.keratin.formula.S);
+		expect(keratin.S).toBe(
+			BIOMOLECULES.keratin.formula.C + BIOMOLECULES.keratin.formula.S,
+		);
 	});
 
 	it("leaves carbon-free tissue alone whatever the backbone", () => {

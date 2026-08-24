@@ -131,6 +131,18 @@ describe("life history laws", () => {
 				encephalizationQuotient(expectedBrainMass(50) / 2, 50),
 			).toBeLessThan(1);
 		});
+
+		/**
+		 * `expectedBrainMass(0)` is exactly 0, so a bodyMassKg of zero would
+		 * otherwise divide `brainMassKg / 0` into Infinity — for the boundary
+		 * case explicitly documented as legal ("zero is a real boundary, not
+		 * an error"). The function guards this with `expected <= 0 → return 0`,
+		 * and nothing had ever called it at that boundary.
+		 */
+		it("scores zero rather than Infinity for a zero-mass body", () => {
+			expect(encephalizationQuotient(0, 0)).toBe(0);
+			expect(encephalizationQuotient(1, 0)).toBe(0);
+		});
 	});
 
 	describe("Dunbar's number", () => {

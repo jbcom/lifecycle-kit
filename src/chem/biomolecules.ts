@@ -124,7 +124,10 @@ export function normalise(raw: Composition): Composition {
  * "C" returns the formula unchanged, which is why every caller can default to
  * it and worlds that chose carbon cost nothing extra.
  */
-export function asBackbone(id: BiomoleculeId, backbone: Backbone = "C"): Record<string, number> {
+export function asBackbone(
+	id: BiomoleculeId,
+	backbone: Backbone = "C",
+): Record<string, number> {
 	const entry = BIOMOLECULES[id];
 	if (!entry) throw new Error(`unknown biomolecule ${id}`);
 	const formula = entry.formula;
@@ -150,7 +153,10 @@ export function unitMass(id: BiomoleculeId, backbone: Backbone = "C"): number {
  * than oxygen, so skeleton is genuinely expensive and a heavily built
  * creature is genuinely an achievement.
  */
-export function growthCost(id: BiomoleculeId, backbone: Backbone = "C"): number {
+export function growthCost(
+	id: BiomoleculeId,
+	backbone: Backbone = "C",
+): number {
 	return scarcity(asBackbone(id, backbone));
 }
 
@@ -174,7 +180,10 @@ export function dominantTissue(c: Composition): BiomoleculeId {
  * near-black, silicon's is a pale teal. A silicon-based creature looks
  * different because it IS different, not because anything recoloured it.
  */
-export function compositionColor(c: Composition, backbone: Backbone = "C"): string {
+export function compositionColor(
+	c: Composition,
+	backbone: Backbone = "C",
+): string {
 	// The origin of the "#NaNNaNNaN" fill that `lifecycle-forms`'s validate.ts
 	// documents. The loop below skips a tissue with `if (frac <= 0) continue`,
 	// and every comparison against NaN is false — so `NaN <= 0` is false, the

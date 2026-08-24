@@ -1,9 +1,4 @@
-import type {
-	Ellipse,
-	Shape,
-	SubPath,
-	Vec2,
-} from "../forms/index.js";
+import type { Ellipse, Shape, SubPath, Vec2 } from "../forms/index.js";
 import type { Light } from "./light.js";
 import { normalise } from "./light.js";
 

@@ -1,4 +1,5 @@
 import { EMPTY_COMPOSITION } from "../../chem/index.js";
+import type { Composition } from "../../chem/index.js";
 import { describe, expect, it } from "vitest";
 import { NO_DIET_HISTORY, recordMeal } from "../dietHistory";
 import { derivePigments } from "../pigments";
@@ -88,6 +89,30 @@ describe("derivePigments", () => {
 		});
 		expect(proteinaceous.porphyrin).toBeGreaterThan(bare.porphyrin);
 		expect(plantFed.porphyrin).toBeGreaterThan(bare.porphyrin);
+	});
+
+	/**
+	 * `Composition` requires every tissue key, so a well-typed caller never
+	 * triggers the `c[id] ?? 0` fallback inside `tissueAffinity` — every test
+	 * above spreads `EMPTY_COMPOSITION`, which already has every key set to 0.
+	 * A shared library is also called by code the type checker did not see,
+	 * per this package's own header, so a Composition missing a key (built by
+	 * hand, or round-tripped through JSON that dropped a zero field) must not
+	 * crash on a property read.
+	 */
+	it("does not throw when a composition is missing a tissue key entirely", () => {
+		const partial = { keratin: 1 } as unknown as Composition;
+		expect(() =>
+			derivePigments(partial, NO_DIET_HISTORY, {
+				uvExposure: 0.5,
+				genetics: 0.5,
+			}),
+		).not.toThrow();
+		const p = derivePigments(partial, NO_DIET_HISTORY, {
+			uvExposure: 0.5,
+			genetics: 0.5,
+		});
+		expect(Object.values(p).every(Number.isFinite)).toBe(true);
 	});
 
 	it("keeps every concentration within 0..1 across the input range", () => {

@@ -155,6 +155,48 @@ describe("paletteRamp survives a pigment object it did not build", () => {
 	});
 });
 
+/**
+ * The "got ..." clause has a branch for an array and a branch for a plain
+ * object, distinct from "number" and "undefined". Every test above only ever
+ * passed a number, undefined, or NaN — never an array or object standing in
+ * for a number, which is what happens when a caller threads a whole options
+ * bag through where one field was expected.
+ */
+describe("bad-argument messages name arrays and objects specifically", () => {
+	it("names an array rather than calling it 'object'", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: [0.5] as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got an array/);
+	});
+
+	it("names an object's own keys", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: { value: 0.5 } as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got an object \(value\)/);
+	});
+
+	/**
+	 * `typeof null === "object"`, so `describe`'s null check has to run
+	 * before its object check or `null` would print as an object with no
+	 * keys — a strictly worse message for the single most common bad-argument
+	 * case: an unset field on a real record.
+	 */
+	it("names null distinctly from an object with no keys", () => {
+		expect(() =>
+			derivePigments(COMPOSITION, DIET, {
+				uvExposure: null as unknown as number,
+				genetics: 0.5,
+			}),
+		).toThrow(/must be a finite number, got null/);
+	});
+});
+
 describe("recordMeal cannot be poisoned", () => {
 	/**
 	 * The average IS the state, so one NaN meal makes `plantAverage` NaN

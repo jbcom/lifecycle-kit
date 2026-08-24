@@ -74,7 +74,11 @@ const CARBON_KERATIN_COST = growthCost("keratin", "C");
  * cross-backbone comparison (see biomolecules.test.ts "makes silicon tissue
  * costlier to grow"), reused here rather than re-derived.
  */
-function structuralShare(id: BiomoleculeId, referenceCost: number, backbone: Backbone): number {
+function structuralShare(
+	id: BiomoleculeId,
+	referenceCost: number,
+	backbone: Backbone,
+): number {
 	if (backbone === "C") return 1;
 	const cost = growthCost(id, backbone);
 	if (cost <= 0) return 1;
@@ -105,19 +109,31 @@ function structuralShare(id: BiomoleculeId, referenceCost: number, backbone: Bac
  * no carbon to begin with, and protein/lipid's role is metabolic rather than
  * structural).
  */
-function demandProfile(a: ActivityDemand, backbone: Backbone = "C"): FoodProfile {
+function demandProfile(
+	a: ActivityDemand,
+	backbone: Backbone = "C",
+): FoodProfile {
 	const out: FoodProfile = {};
 	if (a.exertion > 0) {
 		out.protein = a.exertion * 0.7;
-		out.mineral = a.exertion * 0.2 * structuralShare("mineral", CARBON_MINERAL_COST, backbone);
+		out.mineral =
+			a.exertion *
+			0.2 *
+			structuralShare("mineral", CARBON_MINERAL_COST, backbone);
 	}
 	if (a.growth > 0) {
 		out.protein = (out.protein ?? 0) + a.growth * 0.25;
 		out.mineral =
 			(out.mineral ?? 0) +
-			a.growth * 0.5 * structuralShare("mineral", CARBON_MINERAL_COST, backbone);
-		out.chitin = a.growth * 0.15 * structuralShare("chitin", CARBON_CHITIN_COST, backbone);
-		out.keratin = a.growth * 0.1 * structuralShare("keratin", CARBON_KERATIN_COST, backbone);
+			a.growth *
+				0.5 *
+				structuralShare("mineral", CARBON_MINERAL_COST, backbone);
+		out.chitin =
+			a.growth * 0.15 * structuralShare("chitin", CARBON_CHITIN_COST, backbone);
+		out.keratin =
+			a.growth *
+			0.1 *
+			structuralShare("keratin", CARBON_KERATIN_COST, backbone);
 	}
 	if (a.rest > 0) out.lipid = a.rest * 0.5;
 	return out;
@@ -151,7 +167,8 @@ export function metabolise(
 		const supplied = food[id] ?? 0;
 		const wanted = demand[id] ?? 0;
 		// Building needs both the material and a reason to build it.
-		const built = Math.min(supplied, wanted) / (1 + growthCost(id, backbone) * 0.25);
+		const built =
+			Math.min(supplied, wanted) / (1 + growthCost(id, backbone) * 0.25);
 		tissue[id] = (tissue[id] ?? 0) + built;
 		reserve += supplied - built;
 	}
@@ -210,7 +227,7 @@ export function bodyMass(state: MetabolicState): number {
  * Tissue units per kilogram.
  *
  * bodyMass() counts tissue units, which are arbitrary — a newborn is 3 and a
- * grown pet is a few dozen. The peer-reviewed scaling laws in src/sim/laws
+ * grown pet is a few dozen. The peer-reviewed scaling laws in src/bio-laws
  * are all calibrated in KILOGRAMS, and feeding them raw tissue units would
  * produce numbers that typecheck and mean nothing: Damuth's law on a "mass"
  * of 8 would report the population density of an eight-kilogram animal.

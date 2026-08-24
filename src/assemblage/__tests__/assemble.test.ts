@@ -71,6 +71,47 @@ describe("assembling a creature", () => {
 	});
 });
 
+/**
+ * `forms` rules emit both ellipses (joints, eyes) and subpaths (limbs,
+ * bodies, anything from `taper`/`branch`/`repeat`). Every test above only
+ * ever assembles ellipses, so the subpath side of `centerOf` — which uses the
+ * subpath's start point as a lighting proxy rather than a true centroid — was
+ * never exercised at all.
+ */
+describe("assembling a subpath, not just an ellipse", () => {
+	const limb: Shape = {
+		kind: "subpath",
+		start: { x: -1, y: -1 },
+		segments: [{ kind: "line", to: { x: 1, y: 1 } }],
+		closed: false,
+		tag: { part: "leg", index: 0 },
+	};
+
+	it("gives a subpath a finite depth and light like any other shape", () => {
+		const [part] = assemble([limb]);
+		expect(Number.isFinite(part?.depth)).toBe(true);
+		expect(Number.isFinite(part?.light)).toBe(true);
+	});
+
+	// The subpath's start point drives its lighting, so moving the light
+	// relative to that start must actually change the result — proof the
+	// subpath branch of `centerOf` is really being read, not defaulted.
+	it("lights a subpath from its start point, not a fixed fallback", () => {
+		const facingLight = { direction: { x: 1, y: 1 }, ambient: 0 };
+		const awayLight = { direction: { x: -1, y: -1 }, ambient: 0 };
+		const [lit] = assemble([limb], facingLight);
+		const [dark] = assemble([limb], awayLight);
+		expect(lit?.direct).toBeGreaterThan(dark?.direct ?? 0);
+	});
+
+	it("mixes subpaths and ellipses in the same scene without dropping either", () => {
+		const eye = BODY;
+		const parts = assemble([limb, eye]);
+		expect(parts).toHaveLength(2);
+		expect(parts.every((p) => Number.isFinite(p.light))).toBe(true);
+	});
+});
+
 describe("light", () => {
 	// A directional light means the side facing it is brighter. Without this
 	// a creature is a flat silhouette and depth bands buy nothing.
@@ -168,5 +209,51 @@ describe("bad geometry", () => {
 
 	it("refuses to emit a colour containing NaN", () => {
 		expect(shade("#8899aa", Number.NaN)).toMatch(/^#[0-9a-f]{6}$/i);
+	});
+});
+
+/**
+ * `PartTag.part` is documented (assemblage/assemble.ts's own header) as a
+ * deliberately open string: "an unrecognised part lands on the body's plane
+ * rather than being dropped", because a rule that invents a new kind of part
+ * must not fall out of the scene for want of a depth-band entry. Every test
+ * above only ever tags shapes "body" or "leg", both of which ARE entries in
+ * the band table, so that documented fallback had never actually run.
+ */
+describe("an unrecognised part name", () => {
+	it("lands on the body's depth plane instead of being dropped", () => {
+		const known = shapeAt("body", 0, 0, 0);
+		const unknown: Shape = {
+			kind: "ellipse",
+			center: { x: 0, y: 0 },
+			radiusX: 0.2,
+			radiusY: 0.2,
+			tag: { part: "antenna-tip", index: 0 },
+		};
+		const parts = assemble([known, unknown]);
+		expect(parts).toHaveLength(2);
+		const bodyDepth = parts.find((p) => p.shape === known)?.depth;
+		const unknownDepth = parts.find((p) => p.shape === unknown)?.depth;
+		expect(unknownDepth).toBe(bodyDepth);
+	});
+
+	/**
+	 * `PartTag.index` is typed as a required `number`, so a well-typed caller
+	 * never triggers `depthOf`'s `Number.isFinite(tag.index) ? tag.index : 0`
+	 * fallback. A shared library is also called from outside the type
+	 * checker's view, per this whole package's own documented failure mode —
+	 * a NaN index must not become a NaN depth that then sorts a creature's
+	 * draw order into chaos.
+	 */
+	it("falls back to index zero when a tag's index is not a real number", () => {
+		const bad: Shape = {
+			kind: "ellipse",
+			center: { x: 0, y: 0 },
+			radiusX: 0.2,
+			radiusY: 0.2,
+			tag: { part: "leg", index: Number.NaN },
+		};
+		const [part] = assemble([bad]);
+		expect(Number.isFinite(part?.depth)).toBe(true);
 	});
 });

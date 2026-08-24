@@ -1,7 +1,4 @@
-import {
-	type Composition,
-	compositionColor,
-} from "../chem/index.js";
+import { type Composition, compositionColor } from "../chem/index.js";
 import type { PigmentConcentrations } from "./pigments.js";
 import { object, unitRange } from "./validate.js";
 

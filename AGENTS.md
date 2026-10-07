@@ -71,8 +71,8 @@ exercise the same subdirectory deployment paths.
   `gh api repos/<owner>/<repo>/commits/<tag>` — never a floating major tag
   and never a SHA from memory/training data.
 - **`docs/` is its own pnpm workspace package** (`lifecycle-kit-docs`,
-  private) with its own `node_modules`. Root-level `pnpm verify` does not
-  touch it; run its scripts with `pnpm --filter lifecycle-kit-docs <script>`.
+  private) with its own `node_modules`. Root-level `pnpm verify` includes
+  its build; run individual scripts with `pnpm --filter lifecycle-kit-docs <script>`.
 
 ## Where things run
 

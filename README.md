@@ -152,9 +152,6 @@ declaration order.
 `chem`, `forms`, and `bio-laws` stand alone. `pigment` builds on `chem`.
 `assemblage` builds on `forms` and `pigment`.
 
-Those were version constraints across six packages that had to be kept in step.
-Inside one package they are just imports.
-
 ```text
 world abundance + temperature
             │

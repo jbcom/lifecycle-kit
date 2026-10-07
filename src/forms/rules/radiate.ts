@@ -31,9 +31,7 @@ export interface RadiateParams {
  * Place `count` copies of a unit appendage radially around a centre.
  *
  * The generalisation of `pair` from two sides to N: a starfish's arms, a sea
- * anemone's tentacle ring, and — the consumer that actually needed this — a
- * jellyfish's tentacles, which `bioluminescent-sea` draws with an ad hoc
- * `xRatio` sweep under the name `tentacleCount`. `spreadTurns` covers both:
+ * anemone's tentacle ring, or a jellyfish's tentacles. `spreadTurns` covers both:
  * 1.0 for the anemone's full ring, less than 1.0 for tentacles that trail
  * from the underside of a bell rather than surrounding it.
  *

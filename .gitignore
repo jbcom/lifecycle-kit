@@ -9,3 +9,10 @@ coverage/
 !.env.example
 .playwright-cli/
 output/
+.agent-state/
+.claude/
+CLAUDE.md
+.mcp.json
+opencode.json
+.augment/
+.agents/

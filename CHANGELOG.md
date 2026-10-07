@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3](https://github.com/jbcom/lifecycle-kit/compare/v0.3.2...v0.3.3) (2026-10-07)
+
+
+### Bug Fixes
+
+* declare maintained Node support and align repository gates ([c5bd5ac](https://github.com/jbcom/lifecycle-kit/commit/c5bd5ace95217bb02305fedd674daf061fbc0e97))
+* declare the supported Node lines and test each in CI ([e689412](https://github.com/jbcom/lifecycle-kit/commit/e689412e35ae2f4f1ab048f1c98d5e20990286ba))
+
 ## [0.3.2](https://github.com/jbcom/lifecycle-kit/compare/v0.3.1...v0.3.2) (2026-08-24)
 
 

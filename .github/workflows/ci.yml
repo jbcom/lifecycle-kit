@@ -123,12 +123,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check all required jobs succeeded
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
         run: |
-          if [ "${{ needs.classify.outputs.skip_validation }}" = "true" ]; then
-            echo "Validation intentionally skipped for this encapsulated pull request."
-            exit 0
-          fi
-          if [ "${{ needs.classify.result }}" != "success" ] || [ "${{ needs.verify.result }}" != "success" ] || [ "${{ needs.compatibility.result }}" != "success" ]; then
-            echo "One or more required CI jobs failed or were cancelled."
-            exit 1
-          fi
+          echo "$JOB_RESULTS" | jq -e 'all(.[]; .result == "success" or .result == "skipped")'

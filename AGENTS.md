@@ -77,7 +77,7 @@ exercise the same subdirectory deployment paths.
 ## Where things run
 
 - `ci.yml` — lint/typecheck/coverage/build/package-shape checks, plus a
-  Node 24/26/Windows compatibility matrix. Runs on every PR and push to
+  Node.js 22, 24 and 26 verification matrix, plus Windows compatibility. Runs on every PR and push to
   `main`.
 - `codeql.yml` — static analysis, PR + push + weekly schedule.
 - `release.yml` — Release Please opens/updates the release PR; merging it

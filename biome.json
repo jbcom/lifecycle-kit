@@ -10,6 +10,7 @@
       "src/**",
       "examples/**",
       "scripts/**",
+      "!scripts/apply-branch-ruleset.mjs",
       "*.ts",
       "*.json",
       "!**/node_modules",

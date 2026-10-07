@@ -34,7 +34,7 @@ pnpm add lifecycle-kit
 
 No runtime dependencies.
 
-Lifecycle Kit is ESM-only and supports Node.js 22 or newer, plus modern
+Lifecycle Kit is ESM-only and supports the maintained Node.js 22, 24 and 26 lines (`>=22`), plus modern
 bundlers. CommonJS applications can load it with dynamic `import()`.
 
 There is no global configuration or environment-variable contract. Each pure
@@ -189,7 +189,7 @@ of truth for every exported symbol's signature, unit, and validation behaviour.
 
 ## Development
 
-The repository pins Node 22 and pnpm 11.23.0. The same command used by CI
+The repository defaults to Node 26 and pnpm 11.23.0. Node.js 22, 24 and 26 are supported; no script or hook requires an exact Node patch. The same command used by CI
 checks formatting and lint rules, TypeScript, the full coverage floor, the
 production build, runnable examples, and the packed package's ESM
 declarations:

@@ -99,10 +99,8 @@ describe("recognisability: an ant", () => {
 
 describe("recognisability: a jellyfish", () => {
 	function jellyfish(pulsePhase: number): Path {
-		// A pulsing bell: the width breathes with phase, exactly the animation
-		// bioluminescent-sea needs and the reason Path stays static while
-		// Animated exists one level up (see path.ts's header on time-varying
-		// parameters).
+		// A pulsing bell: the width breathes with phase. Path stays static while
+		// Animated varies the pose (see path.ts's header on time-varying parameters).
 		const wrapped = (pulsePhase % 1) * Math.PI * 2;
 		const pulse = 0.5 + 0.08 * Math.sin(wrapped);
 		const bell = taper({
@@ -165,7 +163,6 @@ describe("recognisability: a jellyfish", () => {
 		}
 	});
 
-	// REQUIRED: time-varying parameters, so bioluminescent-sea can pulse a bell.
 	it("pulses: the bell shape at different phases is a different Path", () => {
 		expect(animated(0)).not.toEqual(animated(0.25));
 	});

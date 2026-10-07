@@ -25,14 +25,6 @@ export interface PairParams {
  * Emit a left/right mirrored pair of a unit appendage at an attachment
  * point.
  *
- * `bioluminescent-sea` independently arrived at this exact shape under a
- * different name — a jellyfish's `tentacleCount` loop draws each tentacle at
- * `xRatio` positions that are symmetric about the bell's centreline, which is
- * `pair` generalised to more than two. This rule is the two-sided case
- * because two-sidedness (bilateral symmetry) is the overwhelmingly common
- * body plan; `radiate` is what generalises it to jellyfish tentacles or
- * starfish arms.
- *
  * The unit appendage is authored pointing away from the body along +y; `pair`
  * translates it into place and reflects the second copy across the body's long
  * axis, so a leg drawn once becomes bilaterally symmetric for free rather than

@@ -44,10 +44,7 @@
  * ## 3. Renderable by both Pixi `Graphics` and SVG
  *
  * The segment vocabulary is the intersection of what both back ends do
- * natively, chosen by counting calls across surveyed procedural renderers
- * actually call. Across `concrete-vermin`, `pond-warfare` and
- * `bioluminescent-sea`: `lineTo` 655, `moveTo` 437, `circle` 335, `ellipse`
- * 187, `closePath` 145, `quadraticCurveTo` 134, `bezierCurveTo` 48.
+ * natively.
  *
  * So: lines, quadratic and cubic curves, and ellipse/circle as a first-class
  * primitive rather than a curve approximation. Both back ends draw all of
@@ -63,10 +60,6 @@
  * one is kept to what the rules provably need.
  *
  * ## 4. Time-varying parameters
- *
- * `bioluminescent-sea` pulses a jellyfish bell, sways its tentacles and beats a
- * fish tail. That consumer requirement would not have surfaced from the other
- * games and it is the one that most constrains the type.
  *
  * The resolution is that a `Path` stays static — a single pose, exactly
  * comparable — and animation lives one level up as a pure function of phase.
@@ -86,9 +79,6 @@ export interface Vec2 {
 
 /**
  * A straight line to an absolute point.
- *
- * The single most-used primitive in the surveyed renderers (655 calls),
- * which is why it is first.
  */
 export interface LineSegment {
 	readonly kind: "line";
@@ -102,8 +92,6 @@ export interface LineSegment {
  * quadratic has an exact cubic equivalent. Promotion would mean two paths that
  * a consumer wrote differently compare equal, which sounds harmless until a
  * test that meant to pin "this is the cheap curve" silently stops doing so.
- * The survey found `quadraticCurveTo` 134 times against `bezierCurveTo` 48, so
- * the cheap curve is the common case and deserves to stay legible.
  */
 export interface QuadraticSegment {
 	readonly kind: "quadratic";
@@ -125,8 +113,7 @@ export type Segment = LineSegment | QuadraticSegment | CubicSegment;
  * A run of segments from a starting point.
  *
  * `closed` is explicit and not inferred from whether the last point equals the
- * first. The surveyed renderers call `closePath` 145 times and also draw many
- * deliberately open strokes — a tentacle, a filament, a belly stripe — and
+ * first. Deliberately open strokes — a tentacle, a filament, a belly stripe — and
  * those two cases differ in how they fill and where they join even when the
  * endpoints coincide. Inferring closure would silently fill a tentacle that
  * happened to curl back on itself.
@@ -145,9 +132,7 @@ export interface SubPath {
 /**
  * An axis-aligned ellipse, as a primitive rather than four beziers.
  *
- * Earns its place on evidence: `circle` and `ellipse` together are 522 calls
- * across the three surveyed games — bells, bodies, spots, eyes, plankton
- * nodes. Both back ends draw it natively and exactly.
+ * Both back ends draw it natively and exactly.
  *
  * There is no separate circle shape. A circle is this with equal radii, and a
  * second type would mean two ways to express one geometry and therefore two
@@ -348,8 +333,7 @@ export function groupByPart(path: Path): { part: string; index: number; shapes: 
  * Phase is in turns, not radians and not seconds. Turns because one full cycle
  * is exactly 1.0, so the loop point is a value a test can name exactly instead
  * of an approximate comparison against 2π. Not seconds because a duration is
- * the consumer's decision: `bioluminescent-sea` drives its own `pulsePhase` at
- * its own rate and the library has no business owning a clock.
+ * the consumer's decision, and the library does not own a clock.
  *
  * Turns make the loop point exact at the seam, not inside a consumer's own
  * arithmetic. `Math.sin(2 * Math.PI)` is -2.4e-16 rather than 0, so a rule that

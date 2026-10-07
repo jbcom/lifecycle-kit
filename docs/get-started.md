@@ -9,7 +9,7 @@ description: Install Lifecycle Kit and run a deterministic chemistry-and-metabol
 pnpm add lifecycle-kit
 ```
 
-Lifecycle Kit is ESM-only and supports Node.js 22 or newer plus modern
+Lifecycle Kit is ESM-only and supports the maintained Node.js 22, 24 and 26 lines (`>=22`) plus modern
 bundlers. CommonJS applications can load it with dynamic `import()`.
 
 ## Use a stage

@@ -9,4 +9,4 @@
 # "packageManager" field in package.json as the single source of truth
 # for its version, both locally (`corepack enable`) and in CI
 # (pnpm/action-setup auto-detects it).
-node = "24"
+node = "26"

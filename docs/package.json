@@ -10,11 +10,11 @@
     "check": "pnpm --dir .. run docs:api && sourcey build --output .sourcey-check && cp lifecycle-kit-hero.webp .sourcey-check/"
   },
   "dependencies": {
-    "sourcey": "3.6.5"
+    "sourcey": "3.6.13"
   },
   "devDependencies": {
     "typedoc": "0.28.20",
-    "typedoc-plugin-markdown": "4.13.0",
+    "typedoc-plugin-markdown": "4.14.0",
     "typescript": "6.0.3"
   }
 }
